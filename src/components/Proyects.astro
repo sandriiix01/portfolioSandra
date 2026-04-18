@@ -1,22 +1,67 @@
 ---
-import imagen1 from '../../public/images/imagen1.webp';
 import { sanityClient } from '../lib/sanity'
 
-const perfil = await sanityClient.fetch(`
-  *[_type == "perfil"][0]{
-    nombre,
-    ocupacion,
+type ProjectImage = {
+  url?: string
+  alt?: string
+  titulo?: string
+  descripcion?: string
+  tags?: string[]
+  links?: { label?: string; url?: string }[]
+}
+
+const proyects = await sanityClient.fetch(`
+  *[_type == "proyecto"][]{
+    titulo,
     descripcion,
     tags,
-    avatar
+    links,
+    "imagenes": imagenes[]{
+      alt,
+      "url": asset->url
+    }
   }
 `)
+
+const projectImages: ProjectImage[] = proyects
+  .flatMap(
+    (project: {
+      titulo?: string
+      descripcion?: string
+      tags?: string[]
+      links?: { label?: string; url?: string }[]
+      imagenes?: { url?: string; alt?: string }[]
+    }) =>
+    (project.imagenes ?? []).map((image) => ({
+      url: image?.url,
+      alt: image?.alt,
+      titulo: project.titulo,
+      descripcion: project.descripcion,
+      tags: project.tags,
+      links: project.links,
+    }))
+  )
+  .filter((image: ProjectImage) => Boolean(image.url))
+
+const gridImages = Array.from({ length: 6 }, (_, index) => projectImages[index] ?? null)
+
+const grid1Slots = [
+  { rowSpan: 'row-span-7', baseColor: 'bg-gray-300', image: gridImages[0] },
+  { rowSpan: 'row-span-4', baseColor: 'bg-gray-400', image: gridImages[1] },
+  { rowSpan: 'row-span-5', baseColor: 'bg-gray-500', image: gridImages[2] },
+]
+
+const grid2Slots = [
+  { rowSpan: 'row-span-5', baseColor: 'bg-gray-300', image: gridImages[3] },
+  { rowSpan: 'row-span-6', baseColor: 'bg-gray-400', image: gridImages[4] },
+  { rowSpan: 'row-span-5', baseColor: 'bg-gray-500', image: gridImages[5] },
+]
 ---
-<div title='Sandra'>
 
 
-			<div style="margin: 0 auto; width: 100%; max-width: 1800px; padding: 2rem;" class="">
-  <section class=" w-full py-20 flex flex-col gap-16 px-8">
+
+			<div style="margin: 0 auto; width: 100%; max-width: 1800px; " class="px-6 sm:px-12 lg:px-24">
+  <section class=" w-full py-20 flex flex-col gap-16 ">
 
     <!-- Header -->
     <div class="flex flex-col gap-4">
@@ -29,64 +74,57 @@ const perfil = await sanityClient.fetch(`
     </div>
 
     <!-- Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-
-      <!-- Large card - spans 2 cols on lg -->
-      <div class="lg:col-span-2 lg:row-span-2  rounded-2xl overflow-hidden relative group duration-300 ease-in-out">
-        <img src={imagen1.src} class="w-full h-full object-cover min-h-64" />
+    <div class="flex gap-4 h-auto md:flex-row flex-col">
+  <!-- GRID 1 -->
+  <div class="grid grid-rows-[repeat(16,minmax(0,1fr))] flex-1 gap-4">
+    {grid1Slots.map((slot) => (
+      <div class={`${slot.baseColor} ${slot.rowSpan} relative overflow-hidden rounded-2xl`}>
+        {slot.image?.url && (
+          
+          <div class="h-full rounded-2xl overflow-hidden relative group duration-300 ease-in-out">
+        <img loading="lazy" src={slot.image.url} alt={slot.image.alt ?? slot.image.titulo ?? 'Imagen de proyecto'} class="w-full h-full object-cover min-h-64" />
       
   <div class="absolute inset-0 bg-gradient-to-r from-black/92 via-black/60 to-black/20 opacity-30 transition-opacity duration-500 group-hover:opacity-100"></div>
    <div class="absolute top-6 left-6 flex flex-col gap-1 opacity-0 translate-y-2.5 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-400">
-          <span class="text-white/60 text-[11px] uppercase tracking-[2.5px]">Architecture</span>
-          <span class="text-white text-sm">2024</span>
+          <div class="flex flex-wrap gap-2">
+            {(slot.image.tags?.slice(0, 3) ?? ['Project']).map((tag: string) => (
+              <span class="text-white/60 text-[11px] uppercase tracking-[2.5px]">{tag}</span>
+            ))}
+          </div>
+          <span class="text-white text-sm">2026</span>
         </div>
-        <h3 class="absolute bottom-6 left-6 text-white font-['Instrument_Serif'] text-4xl font-normal">Minimal Architecture</h3>
+        <h3 class="absolute bottom-6 left-6 text-white font-['Instrument_Serif'] text-4xl font-normal">{slot.image.titulo ?? 'Proyecto'}</h3>
       </div>
+        )}
+      </div>
+    ))}
+  </div>
 
-      <!-- Small cards -->
-      <div class="bg-stone-950 rounded-2xl overflow-hidden relative">
-        <img src="data:image/jpeg;base64,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" class="w-full h-64 object-cover" />
-        <div class="absolute inset-0 bg-gradient-to-r from-black via-black/40 to-transparent opacity-80"></div>
-        <div class="absolute bottom-6 left-6">
-          <h3 class="text-white font-['Instrument_Serif'] text-3xl">Luxury Brand</h3>
+  <!-- GRID 2 (cortes diferentes) -->
+  <div class="grid grid-rows-[repeat(16,minmax(0,1fr))] flex-1 gap-4">
+    {grid2Slots.map((slot) => (
+      <div class={`${slot.baseColor} ${slot.rowSpan} relative overflow-hidden rounded-2xl`}>
+        {slot.image?.url && (
+          <div class="h-full rounded-2xl overflow-hidden relative group duration-300 ease-in-out">
+        <img loading="lazy" src={slot.image.url} alt={slot.image.alt ?? slot.image.titulo ?? 'Imagen de proyecto'} class="w-full h-full object-cover min-h-64" />
+      
+  <div class="absolute inset-0 bg-gradient-to-r from-black/92 via-black/60 to-black/20 opacity-30 transition-opacity duration-500 group-hover:opacity-100"></div>
+   <div class="absolute top-6 left-6 flex flex-col gap-1 opacity-0 translate-y-2.5 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-400">
+          <div class="flex flex-wrap gap-2">
+            {(slot.image.tags?.slice(0, 3) ?? ['Project']).map((tag: string) => (
+              <span class="text-white/60 text-[11px] uppercase tracking-[2.5px]">{tag}</span>
+            ))}
+          </div>
+          <span class="text-white text-sm">2026</span>
         </div>
+        <h3 class="absolute bottom-6 left-6 text-white font-['Instrument_Serif'] text-4xl font-normal">{slot.image.titulo ?? 'Proyecto'}</h3>
       </div>
-
-      <div class="bg-stone-950 rounded-2xl overflow-hidden relative">
-        <img src="https://placehold.co/403x450" class="w-full h-64 object-cover" />
-        <div class="absolute inset-0 bg-gradient-to-r from-black via-black/40 to-transparent opacity-80"></div>
-        <div class="absolute bottom-6 left-6">
-          <h3 class="text-white font-['Instrument_Serif'] text-3xl">Tech Interface</h3>
-        </div>
+        )}
       </div>
-
-      <div class="bg-stone-950 rounded-2xl overflow-hidden relative">
-        <img src="https://placehold.co/403x450" class="w-full h-64 object-cover" />
-        <div class="absolute inset-0 bg-gradient-to-r from-black via-black/40 to-transparent opacity-80"></div>
-        <div class="absolute bottom-6 left-6">
-          <h3 class="text-white font-['Instrument_Serif'] text-3xl">Product Photography</h3>
-        </div>
-      </div>
-
-      <div class="bg-stone-950 rounded-2xl overflow-hidden relative">
-        <img src="https://placehold.co/403x450" class="w-full h-64 object-cover" />
-        <div class="absolute inset-0 bg-gradient-to-r from-black via-black/40 to-transparent opacity-80"></div>
-        <div class="absolute bottom-6 left-6">
-          <h3 class="text-white font-['Instrument_Serif'] text-3xl">Workspace Design</h3>
-        </div>
-      </div>
-
-      <!-- Wide card - spans full on lg -->
-      <div class="lg:col-span-3 bg-stone-950 rounded-2xl overflow-hidden relative">
-        <img src="https://placehold.co/841x450" class="w-full h-64 object-cover" />
-        <div class="absolute inset-0 bg-gradient-to-r from-black via-black/40 to-transparent opacity-80"></div>
-        <div class="absolute bottom-6 left-6">
-          <h3 class="text-white font-['Instrument_Serif'] text-3xl">Modern Interior</h3>
-        </div>
-      </div>
-
-    </div>
+    ))}
+  </div>
+</div>
   </section>
 </div>
 
-		</div>
+		

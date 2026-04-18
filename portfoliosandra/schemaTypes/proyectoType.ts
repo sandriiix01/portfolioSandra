@@ -12,6 +12,12 @@ export const proyectoType = defineType({
       validation: (rule) => rule.required(),
     }),
     defineField({
+      name: 'descripcioncorta',
+      title: 'Descripción corta',
+      type: 'text',
+      validation: (rule) => rule.required(),
+    }),
+    defineField({
       name: 'descripcion',
       title: 'Descripción',
       type: 'text',
