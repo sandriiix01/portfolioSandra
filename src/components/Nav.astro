@@ -1,0 +1,151 @@
+---
+// Nav.astro
+// src/components/Nav.astro
+
+const navLinks = [
+  { label: "Home",      href: "/",          active: true  },
+  { label: "Proyectos", href: "/proyectos", active: false },
+  { label: "Sobre mí", href: "/sobre-mi",  active: false },
+  { label: "Contacto",  href: "/contacto",  active: false },
+];
+---
+
+<header id="main-nav" class="nav-header">
+  <nav class="nav-inner" aria-label="Navegación principal">
+
+    <!-- Logo -->
+    <a href="/" class="nav-logo" aria-label="Ir al inicio">
+      Portfolio<span class="nav-logo-dot">.</span>
+    </a>
+
+    <!-- Links (desktop) -->
+    <ul class="nav-links" role="list">
+      {navLinks.map((link) => (
+        <li>
+          <a
+            href={link.href}
+            class:list={["nav-link", { "nav-link--active": link.active }]}
+            aria-current={link.active ? "page" : undefined}
+          >
+            {link.label}
+          </a>
+        </li>
+      ))}
+    </ul>
+
+    <!-- CTA (desktop) -->
+    <a href="/contacto" class="btn-primary nav-cta nav-cta--desktop">
+      ¿Hablamos?
+    </a>
+
+    <!-- Burger button (mobile only) -->
+    <button
+      id="nav-burger"
+      class="nav-burger"
+      aria-label="Abrir menú"
+      aria-expanded="false"
+      aria-controls="mobile-menu"
+    >
+      <!-- Hamburger icon -->
+      <span class="burger-icon" aria-hidden="true">
+        <span></span>
+        <span></span>
+      </span>
+    </button>
+
+  </nav>
+</header>
+
+<!-- ── Mobile full-screen menu ── -->
+<div id="mobile-menu" class="mobile-menu" aria-hidden="true">
+
+  <!-- Close button -->
+  <button id="nav-close" class="mobile-menu__close" aria-label="Cerrar menú">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+         stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+         width="22" height="22">
+      <path d="M18 6 6 18M6 6l12 12"/>
+    </svg>
+  </button>
+
+  <!-- Nav links — large display size -->
+  <nav aria-label="Menú móvil">
+    <ul class="mobile-menu__links" role="list">
+      {navLinks.map((link, i) => (
+        <li style={`--i: ${i}`}>
+          <a
+            href={link.href}
+            class:list={["mobile-menu__link", { "mobile-menu__link--active": link.active }]}
+            aria-current={link.active ? "page" : undefined}
+          >
+            {link.label}
+          </a>
+        </li>
+      ))}
+    </ul>
+  </nav>
+
+  <!-- CTA inside mobile menu -->
+  <div class="mobile-menu__footer">
+    <a href="/contacto" class="btn-primary mobile-menu__cta">
+      ¿Hablamos?
+    </a>
+  </div>
+
+</div>
+
+<script>
+  // ── Scroll behavior ──
+  const header = document.getElementById("main-nav");
+  const SCROLL_THRESHOLD = 10;
+
+  function onScroll() {
+    if (window.scrollY > SCROLL_THRESHOLD) {
+      header?.classList.add("nav--scrolled");
+    } else {
+      header?.classList.remove("nav--scrolled");
+    }
+  }
+  window.addEventListener("scroll", onScroll, { passive: true });
+  onScroll();
+
+  // ── Mobile menu ──
+  const burger    = document.getElementById("nav-burger");
+  const closeBtn  = document.getElementById("nav-close");
+  const menu      = document.getElementById("mobile-menu");
+
+  function openMenu() {
+    menu?.classList.add("is-open");
+    burger?.setAttribute("aria-expanded", "true");
+    menu?.setAttribute("aria-hidden", "false");
+    if (burger) {
+      burger.style.opacity = "0";
+      burger.style.pointerEvents = "none";
+    }
+    document.body.style.overflow = "hidden";
+  }
+
+  function closeMenu() {
+    menu?.classList.remove("is-open");
+    burger?.setAttribute("aria-expanded", "false");
+    menu?.setAttribute("aria-hidden", "true");
+    if (burger) {
+      burger.style.opacity = "";
+      burger.style.pointerEvents = "";
+    }
+    document.body.style.overflow = "";
+  }
+
+  burger?.addEventListener("click", openMenu);
+  closeBtn?.addEventListener("click", closeMenu);
+
+  // Close on link click
+  menu?.querySelectorAll("a").forEach(link => {
+    link.addEventListener("click", closeMenu);
+  });
+
+  // Close on Escape
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeMenu();
+  });
+</script>

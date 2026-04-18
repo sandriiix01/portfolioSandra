@@ -1,0 +1,91 @@
+---
+import { sanityClient } from '../lib/sanity'
+
+const proyects = await sanityClient.fetch(`
+  *[_type == "proyecto"][]{
+    titulo,
+    "imagenes": imagenes[]{
+      alt,
+      "url": asset->url
+    }
+  }
+`)
+
+const projectImages = proyects
+  .flatMap((project: { titulo?: string; imagenes?: { url?: string; alt?: string }[] }) =>
+    (project.imagenes ?? []).map((image) => ({
+      url: image?.url,
+      alt: image?.alt,
+      titulo: project.titulo,
+    }))
+  )
+  .filter((image: { url?: string }) => Boolean(image.url))
+
+const gridImages = Array.from({ length: 6 }, (_, index) => projectImages[index] ?? null)
+
+const grid1Slots = [
+  { rowSpan: 'row-span-7', baseColor: 'bg-gray-300', image: gridImages[0] },
+  { rowSpan: 'row-span-4', baseColor: 'bg-gray-400', image: gridImages[1] },
+  { rowSpan: 'row-span-5', baseColor: 'bg-gray-500', image: gridImages[2] },
+]
+
+const grid2Slots = [
+  { rowSpan: 'row-span-5', baseColor: 'bg-gray-300', image: gridImages[3] },
+  { rowSpan: 'row-span-6', baseColor: 'bg-gray-400', image: gridImages[4] },
+  { rowSpan: 'row-span-5', baseColor: 'bg-gray-500', image: gridImages[5] },
+]
+---
+
+
+
+			<div style="margin: 0 auto; width: 100%; max-width: 1800px; " class="px-6 sm:px-12 lg:px-24">
+  <section class=" w-full py-20 flex flex-col gap-16 ">
+
+    <!-- Header -->
+    <div class="flex flex-col gap-4">
+      <span class="w-fit bg-white/5 border border-white/10 rounded-full px-4 py-1 text-white/60 text-xs uppercase tracking-[3.6px]">
+        Selected Works
+      </span>
+      <h2 class="text-white font-['Instrument_Serif'] text-6xl md:text-8xl leading-tight">
+        Featured <span class="text-transparent">Projects</span>
+      </h2>
+    </div>
+
+    <!-- Grid -->
+    <div class="flex gap-4 h-auto md:flex-row flex-col">
+  <!-- GRID 1 -->
+  <div class="grid grid-rows-[repeat(16,minmax(0,1fr))] flex-1 gap-4">
+    {grid1Slots.map((slot) => (
+      <div class={`${slot.baseColor} ${slot.rowSpan} relative overflow-hidden`}>
+        {slot.image?.url && (
+          <img
+            src={slot.image.url}
+            alt={slot.image.alt ?? slot.image.titulo ?? 'Imagen de proyecto'}
+            loading="lazy"
+            class="h-full w-full object-cover"
+          />
+        )}
+      </div>
+    ))}
+  </div>
+
+  <!-- GRID 2 (cortes diferentes) -->
+  <div class="grid grid-rows-[repeat(16,minmax(0,1fr))] flex-1 gap-4">
+    {grid2Slots.map((slot) => (
+      <div class={`${slot.baseColor} ${slot.rowSpan} relative overflow-hidden`}>
+        {slot.image?.url && (
+          <img
+            src={slot.image.url}
+            alt={slot.image.alt ?? slot.image.titulo ?? 'Imagen de proyecto'}
+            loading="lazy"
+            class="h-full w-full object-cover"
+          />
+        )}
+      </div>
+    ))}
+  </div>
+</div>
+  </section>
+</div>
+
+		

@@ -1,5 +1,5 @@
 ---
-import "../styles/global.css";
+import Nav from "../components/Nav.astro";
 
 const { title = "Sandra" } = Astro.props;
 ---
@@ -47,6 +47,15 @@ const { title = "Sandra" } = Astro.props;
     <meta name="twitter:image" content="/logo.svg" />
   </head>
   <body>
+    <Nav />
     <slot />
   </body>
 </html>
+<style>
+  html,
+  body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+  }
+</style>
