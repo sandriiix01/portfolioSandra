@@ -704,3 +704,140 @@
   -webkit-text-stroke: 1px rgba(255, 255, 255, 0.04);
   user-select: none;
 }
+
+
+
+
+
+
+/* ─────────────────────────────────────────────
+   PROJECTS SECTION — añade al final de global.css
+   ───────────────────────────────────────────── */
+
+/* ── Image wrapper: posición relativa para el placeholder ── */
+.project-img-wrap {
+  position: relative;
+}
+
+/* Placeholder: ocupa todo el espacio, se oculta si hay imagen cargada */
+.project-img-placeholder {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+/* Imagen siempre sobre el placeholder */
+.project-img-wrap img {
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Bullet list — sin bullets nativos, custom dot ── */
+.project-bullet-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+.project-bullet-list li {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+.project-bullet-list li::before {
+  content: "•";
+  font-size: 0.5rem;
+  color: var(--color-secondary);
+  flex-shrink: 0;
+  line-height: 1.6;
+}
+
+/* ── Chevron: suave rotación en hover sobre el article ── */
+.project-entry:hover .project-chevron {
+  color: var(--color-primary);
+  transition: color 300ms ease;
+}
+
+/* ── Separador entre proyectos — tonal, sin línea explícita ── */
+.project-entry + .project-entry {
+  padding-top: 2rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* ── Gallery row heights en desktop ── */
+@media (min-width: 640px) {
+  .project-gallery .grid > div {
+    min-height: 240px;
+  }
+  .project-img-wrap.aspect-video {
+    aspect-ratio: auto;
+  }
+}
+
+
+
+
+/* ─────────────────────────────────────────────
+   CTA BLOB EFFECT — añade al final de global.css
+   ───────────────────────────────────────────── */
+
+.cta-wrap {
+  position: relative;
+  display: inline-flex;
+  /* Permite que los blobs desborden sin afectar el layout */
+  isolation: isolate;
+}
+
+/* ── Blob base ── */
+.cta-blob {
+  position: absolute;
+  /* Centrado sobre el botón por defecto */
+  top: 50%;
+  left: 20%;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.55);
+  filter: blur(18px);
+  pointer-events: none;
+  z-index: -1;
+
+  /* Estado inicial: colapsado en el centro, invisible */
+  transform: translate(-50%, -50%) scale(0);
+  opacity: 0;
+  transition:
+    transform 600ms cubic-bezier(0.16, 1, 0.3, 1),
+    opacity   600ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ── On hover (CTA o article): cada blob se aleja en su dirección ── */
+.cta-wrap:hover .cta-blob--tl,
+.project-entry:hover .cta-wrap .cta-blob--tl {
+  transform: translate(calc(-50% - 38px), calc(-50% - 28px)) scale(1);
+  opacity: 1;
+}
+.cta-wrap:hover .cta-blob--tr,
+.project-entry:hover .cta-wrap .cta-blob--tr {
+  transform: translate(calc(-5% + 38px), calc(-50% - 28px)) scale(1);
+  opacity: 1;
+}
+.cta-wrap:hover .cta-blob--bl,
+.project-entry:hover .cta-wrap .cta-blob--bl {
+  transform: translate(calc(-50% - 138px), calc(-50% + 28px)) scale(1);
+  opacity: 1;
+}
+.cta-wrap:hover .cta-blob--br,
+.project-entry:hover .cta-wrap .cta-blob--br {
+  transform: translate(calc(-20% + 38px), calc(-50% + 28px)) scale(1);
+  opacity: 1;
+}
+
+/* Delays escalonados para que salgan en cascada, no todos a la vez */
+.cta-blob--tr { transition-delay: 40ms;  }
+.cta-blob--bl { transition-delay: 80ms;  }
+.cta-blob--br { transition-delay: 120ms; }
+
+/* Al soltar el hover vuelven al centro también en cascada (inverso) */
+.cta-blob--tl { transition-delay: 120ms; }

@@ -1,0 +1,344 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import "../../styles/global.css";
+import { sanityClient } from '../../lib/sanity'
+import Footer from '../../components/Footer.astro';
+
+type SanityImage = {
+  asset?: {
+    url?: string
+  }
+}
+
+type ContentBlock = {
+  texto?: string
+  imagenes?: SanityImage[]
+}
+
+type TecnicasBlock = ContentBlock & {
+  tags?: string[]
+}
+
+type Project = {
+  titulo?: string
+  slug?: {
+    current?: string
+  }
+  descripcioncorta?: string
+  anio?: number
+  tags?: string[]
+  imagencover?: SanityImage
+  links?: { label?: string; url?: string }[]
+  introduccion?: ContentBlock
+  tecnicas?: TecnicasBlock
+  mensaje?: ContentBlock
+  inspiracion?: ContentBlock
+  intencion?: ContentBlock
+  informacionRecalcable?: string
+}
+
+export async function getStaticPaths() {
+  const projects = await sanityClient.fetch<Array<{ slug?: { current?: string } }>>(`
+    *[_type == "proyecto"][]{
+      slug
+    }
+  `)
+
+  return projects
+    .map((project) => {
+      const slug = project.slug?.current ?? ''
+
+      if (!slug) {
+        return null
+      }
+
+      return {
+        params: { slug },
+      }
+    })
+    .filter((path): path is { params: { slug: string } } => Boolean(path))
+}
+
+const { slug } = Astro.params
+
+const project = await sanityClient.fetch<Project | null>(
+  `*[_type == "proyecto" && slug.current == $slug][0]{
+    titulo,
+    slug,
+    descripcioncorta,
+    anio,
+    tags,
+
+    imagencover{
+      ...,
+      asset->
+    },
+
+    links[]{
+      label,
+      url
+    },
+
+    introduccion{
+      texto,
+      imagenes[]{
+        ...,
+        asset->
+      }
+    },
+
+    tecnicas{
+      texto,
+      tags,
+      imagenes[]{
+        ...,
+        asset->
+      }
+    },
+
+    mensaje{
+      texto,
+      imagenes[]{
+        ...,
+        asset->
+      }
+    },
+
+    inspiracion{
+      texto,
+      imagenes[]{
+        ...,
+        asset->
+      }
+    },
+
+    intencion{
+      texto,
+      imagenes[]{
+        ...,
+        asset->
+      }
+    },
+
+    informacionRecalcable
+  }`,
+  { slug }
+)
+
+const imageUrl = (image?: SanityImage) => image?.asset?.url
+
+const optionalSections: Array<{
+  key: string
+  title: string
+  data?: ContentBlock | TecnicasBlock
+}> = [
+  { key: 'tecnicas', title: 'Tecnicas', data: project?.tecnicas },
+  { key: 'mensaje', title: 'Mensaje', data: project?.mensaje },
+  { key: 'inspiracion', title: 'Inspiracion', data: project?.inspiracion },
+  { key: 'intencion', title: 'Intencion', data: project?.intencion },
+].filter((section) => {
+  const hasText = Boolean(section.data?.texto)
+  const hasImages = Boolean(section.data?.imagenes?.length)
+  const hasTags =
+    section.key === 'tecnicas' &&
+    Boolean((section.data as TecnicasBlock | undefined)?.tags?.length)
+
+  return hasText || hasImages || hasTags
+})
+
+---
+
+<Layout>
+      <section
+
+    aria-label="Sección principal"
+      id="proyectos"
+        style="margin: 25vh auto; width: 100%; max-width: 1800px; "
+  class="px-6 sm:px-12 lg:px-24"
+  >
+
+  {project ? (
+    <article class="project-entry" aria-label={project.titulo}>
+ 
+      <!-- ── TOP ROW: título + cover ── -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start mb-4">
+ 
+        <!-- Left: título + meta -->
+        <div class="flex flex-col gap-5">
+ 
+          <!-- Título + chevron -->
+          <div class="flex items-center gap-4">
+            <h2 class="font-manrope font-black tracking-tighter leading-none text-neutral-100
+                       text-[clamp(2.8rem,7vw,5rem)] uppercase">
+              {project.titulo}
+            </h2>
+            <!-- Chevron down -->
+            {/* <svg
+              xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+              class="project-chevron w-8 h-8 sm:w-10 sm:h-10 text-neutral-400 shrink-0 mt-1"
+              aria-hidden="true"
+            >
+              <path d="m6 9 6 6 6-6"/>
+            </svg> */}
+          </div>
+ 
+          <!-- Category chips -->
+          <div class="flex flex-wrap gap-2">
+            {project.tags?.map((tag) => (
+              <span class="chip">{tag}</span>
+            ))}
+          </div>
+ 
+          <!-- Introducción (obligatoria) -->
+          <div class="mt-1">
+            <p class="font-inter text-sm text-neutral-400 leading-relaxed">
+              {project.introduccion?.texto}
+            </p>
+          </div>
+ 
+          <div class="mt-2 flex flex-wrap gap-2">
+            <span>{project.anio}</span>
+          </div>
+
+          {project.links && project.links.length > 0 && (
+            <div class="mt-2 flex flex-wrap gap-2">
+              {project.links.map((link) => (
+                <a
+                  href={link.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="chip"
+                >
+                  {link.label ?? 'Ver enlace'}
+                </a>
+              ))}
+            </div>
+          )}
+ 
+        </div>
+ 
+        <!-- Right: cover image -->
+        <div class="project-img-wrap rounded-2xl overflow-hidden bg-[#191a1a]
+                    aspect-4/3 lg:aspect-auto lg:min-h-70">
+          {imageUrl(project.imagencover) ? (
+            <img
+              src={imageUrl(project.imagencover)}
+              alt={`Imagen de portada de ${project.titulo}`}
+              class="w-full h-full object-cover"
+              loading="lazy"
+            />
+          ) : (
+            <div class="project-img-placeholder flex items-center justify-center h-full">
+              <span class="font-inter text-[10px] uppercase tracking-widest text-neutral-600">
+                Posible imagen de introducción
+              </span>
+            </div>
+          )}
+        </div>
+ 
+      </div>
+      <!-- /TOP ROW -->
+ 
+      <!-- ── INTRODUCCIÓN (obligatoria en schema) ── -->
+      {(project.introduccion?.texto || project.introduccion?.imagenes?.length) && (
+        <div class="project-gallery mt-0">
+          {project.introduccion?.imagenes && project.introduccion.imagenes.length > 0 && (
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {project.introduccion.imagenes.map((image, imageIdx) => (
+                <div
+                  class:list={[
+                    'project-img-wrap  rounded-2xl overflow-hidden bg-[#191a1a] aspect-square sm:aspect-auto',
+                    imageIdx === 0 && project.introduccion?.imagenes && project.introduccion.imagenes.length > 1
+                      ? 'sm:col-span-2 aspect-video'
+                      : ''
+                  ]}
+                >
+                  {imageUrl(image) ? (
+                    <img
+                      src={imageUrl(image)}
+                      alt={`Imagen de introduccion de ${project.titulo}`}
+                      class="w-full h-full object-cover"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <div class="project-img-placeholder flex items-center justify-center h-full">
+                      <span class="font-inter text-[10px] uppercase tracking-widest text-neutral-600">
+                        Imagen no disponible
+                      </span>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      <!-- ── BLOQUES OPCIONALES ── -->
+      {optionalSections.map((section) => (
+        <div class="project-gallery mt-10" id={section.key}>
+          <div class="mb-5">
+            <p class="font-inter text-xs text-neutral-500 uppercase tracking-widest mb-2">{section.title}</p>
+            {section.data?.texto && (
+              <p class="font-inter text-sm text-neutral-400 leading-relaxed">{section.data.texto}</p>
+            )}
+
+            {section.key === 'tecnicas' && (section.data as TecnicasBlock)?.tags && (
+              <div class="mt-3 flex flex-wrap gap-2">
+                {(section.data as TecnicasBlock).tags?.map((tag) => (
+                  <span class="chip">{tag}</span>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {section.data?.imagenes && section.data.imagenes.length > 0 && (
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {section.data.imagenes.map((image, imageIdx) => (
+                <div
+                  class:list={[
+                    'project-img-wrap max-h-[600px] rounded-2xl overflow-hidden bg-[#191a1a] aspect-square sm:aspect-auto',
+                    imageIdx === 0 && section.data?.imagenes && section.data.imagenes.length > 1
+                      ? 'sm:col-span-2 aspect-video'
+                      : ''
+                  ]}
+                >
+                  {imageUrl(image) ? (
+                    <img
+                      src={imageUrl(image)}
+                      alt={`Imagen de ${section.title.toLowerCase()} de ${project.titulo}`}
+                      class="w-full h-full object-cover"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <div class="project-img-placeholder flex items-center justify-center h-full">
+                      <span class="font-inter text-[10px] uppercase tracking-widest text-neutral-600">
+                        Imagen no disponible
+                      </span>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      ))}
+
+      {project.informacionRecalcable && (
+        <div class="project-gallery mt-10">
+          <p class="font-inter text-xs text-neutral-500 uppercase tracking-widest mb-2">Informacion recalcable</p>
+          <p class="font-inter text-sm text-neutral-400 leading-relaxed">{project.informacionRecalcable}</p>
+        </div>
+      )}
+ 
+    </article>
+  ) : (
+    <article class="project-entry">
+      <p class="font-inter text-sm text-neutral-400">Proyecto no encontrado.</p>
+    </article>
+  )}
+ 
+</section>
+<Footer/>
+</Layout>

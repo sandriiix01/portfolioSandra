@@ -1,91 +1,123 @@
 ---
-// AboutSection.astro
-// src/components/AboutSection.astro
+import { sanityClient } from "../lib/sanity";
 
-const programs = [
-  { name: "Figma",                    level: 5 },
-  { name: "Clip Studio / Procreate",  level: 5 },
-  { name: "Photoshop / Lightroom",    level: 4 },
-  { name: "InDesign / Ilustrator",    level: 3 },
-  { name: "Capcut / After Effects",   level: 3 },
-  { name: "Premier Pro",              level: 3 },
-  { name: "3DMax / Substance Painter",level: 3 },
-  { name: "Canva",                    level: 3 },
-];
+type PerfilProgram = {
+  nombre?: string;
+  nivel?: number;
+};
+
+type Perfil = {
+  nombre?: string;
+  descripcion?: string;
+  programas?: PerfilProgram[];
+};
+
+const perfil = await sanityClient.fetch<Perfil | null>(`
+  *[_type == "perfil"][0]{
+    nombre,
+    descripcion,
+    programas[]{
+      nombre,
+      nivel
+    }
+  }
+`);
+
+const programs = (perfil?.programas ?? []).map((program) => ({
+  name: program.nombre ?? "Programa",
+  level: Math.min(Math.max(Math.round(program.nivel ?? 0), 0), 5),
+}));
+
+const aboutParagraphs = (perfil?.descripcion ?? "")
+  .split("\n")
+  .map((line) => line.trim())
+  .filter(Boolean);
 
 const MAX_STARS = 5;
 ---
-<div style="margin: 0 auto; width: 100%; max-width: 1800px; " class="px-6 sm:px-12 lg:px-24 py-20">
-<section class="about-section" id="sobre-mi" aria-label="Sobre mí">
 
-  <!-- ── Top label chip ── -->
-  <div class="about-chip-wrap">
-    <span class="chip">Sobre mi</span>
-  </div>
+<div
+  style="margin: 0 auto; width: 100%; max-width: 1800px; "
+  class="px-6 sm:px-12 lg:px-24 py-20"
+>
+  <section class="about-section" id="sobre-mi" aria-label="Sobre mí">
+    <!-- ── Top label chip ── -->
+    <div class="about-chip-wrap">
+      <span class="chip">Sobre mi</span>
+    </div>
 
-  <!-- ── Display headline ── -->
-  <h2 class="about-headline">
-    Narrativa visual para <em class="serif-accent">comunicar</em>
-  </h2>
+    <!-- ── Display headline ── -->
+    <h2 class="about-headline">
+      Narrativa visual para <em class="serif-accent">comunicar</em>
+    </h2>
 
-  <!-- ── Two-column body ── -->
-  <div class="about-grid">
+    <!-- ── Two-column body ── -->
+    <div class="about-grid">
+      <!-- LEFT: Bio -->
+      <div class="about-bio">
+        <h3 class="about-bio__title">{perfil?.nombre ?? "Sobre mi"}</h3>
 
-    <!-- LEFT: Bio -->
-    <div class="about-bio">
-      <h3 class="about-bio__title">Sobre mi</h3>
+        <div class="about-bio__text">
+          {
+            aboutParagraphs.length > 0 ? (
+              aboutParagraphs.map((paragraph) => <p>{paragraph}</p>)
+            ) : (
+              <p>Sin descripcion disponible.</p>
+            )
+          }
+        </div>
 
-      <div class="about-bio__text">
-        <p>
-          Apasionada por el diseño y la creatividad, me especializo en ilustración,
-          diseño gráfico y diseño editorial.
-        </p>
-        <p>
-          Cuento con experiencia en la industria del diseño gráfico, asumiendo un rol
-          multidisciplinario enfocado principalmente en la producción de contenidos
-          para redes sociales y branding. También tengo experiencia en la industria
-          de los videojuegos como artista conceptual, diseñadora de personajes,
-          animadora y de comunicadora visual.
-        </p>
-        <p>
-          Me considero una persona proactiva y observadora, siempre buscando
-          nuevas formas de crecer profesionalmente y ampliar mis conocimientos.
-        </p>
+        <a href="/cv.pdf" download class="btn-ghost about-cv-btn">
+          Descargar CV
+        </a>
       </div>
 
-      <a href="/cv.pdf" download class="btn-ghost about-cv-btn">
-        Descargar CV
-      </a>
-    </div>
+      <!-- RIGHT: Programs & skill ratings -->
+      <div class="about-skills">
+        <h3 class="about-skills__title">Programas</h3>
 
-    <!-- RIGHT: Programs & skill ratings -->
-    <div class="about-skills">
-      <h3 class="about-skills__title">Programas</h3>
-
-      <ul class="skills-list" role="list" aria-label="Programas y nivel de dominio">
-        {programs.map((prog) => (
-          <li class="skills-row">
-            <span class="skills-row__name">{prog.name}</span>
-            <span class="skills-row__stars" aria-label={`Nivel ${prog.level} de ${MAX_STARS}`}>
-              {Array.from({ length: MAX_STARS }).map((_, i) => (
-                <svg
-                  class:list={["star-icon", i < prog.level ? "star-icon--filled" : "star-icon--empty"]}
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                  aria-hidden="true"
-                >
-                  {/* 4-pointed star / sparkle */}
-                  <path d="M12 2 L13.5 10.5 L22 12 L13.5 13.5 L12 22 L10.5 13.5 L2 12 L10.5 10.5 Z"/>
-                </svg>
-              ))}
-            </span>
-          </li>
-        ))}
-      </ul>
-    </div>
-
-  </div><!-- /about-grid -->
-
-</section>
+        <ul
+          class="skills-list"
+          role="list"
+          aria-label="Programas y nivel de dominio"
+        >
+          {
+            programs.length > 0 ? (
+              programs.map((prog) => (
+                <li class="skills-row">
+                  <span class="skills-row__name">{prog.name}</span>
+                  <span
+                    class="skills-row__stars"
+                    aria-label={`Nivel ${prog.level} de ${MAX_STARS}`}
+                  >
+                    {Array.from({ length: MAX_STARS }).map((_, i) => (
+                      <svg
+                        class:list={[
+                          "star-icon",
+                          i < prog.level
+                            ? "star-icon--filled"
+                            : "star-icon--empty",
+                        ]}
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                        aria-hidden="true"
+                      >
+                        {/* 4-pointed star / sparkle */}
+                        <path d="M12 2 L13.5 10.5 L22 12 L13.5 13.5 L12 22 L10.5 13.5 L2 12 L10.5 10.5 Z" />
+                      </svg>
+                    ))}
+                  </span>
+                </li>
+              ))
+            ) : (
+              <li class="skills-row">
+                <span class="skills-row__name">Sin programas disponibles</span>
+              </li>
+            )
+          }
+        </ul>
+      </div>
+    </div><!-- /about-grid -->
+  </section>
 </div>
