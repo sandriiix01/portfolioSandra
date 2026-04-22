@@ -9,12 +9,24 @@ type PerfilProgram = {
 type Perfil = {
   nombre?: string;
   descripcion?: string;
+  cv?: {
+    asset?: {
+      url?: string;
+      originalFilename?: string;
+    };
+  };
   programas?: PerfilProgram[];
 };
 
 const perfil = await sanityClient.fetch<Perfil | null>(`
   *[_type == "perfil"][0]{
     nombre,
+    cv{
+      asset->{
+        url,
+        originalFilename
+      }
+    },
     descripcion,
     programas[]{
       nombre,
@@ -22,6 +34,9 @@ const perfil = await sanityClient.fetch<Perfil | null>(`
     }
   }
 `);
+
+const cvUrl = perfil?.cv?.asset?.url;
+const cvFilename = perfil?.cv?.asset?.originalFilename ?? "cv.pdf";
 
 const programs = (perfil?.programas ?? []).map((program) => ({
   name: program.nombre ?? "Programa",
@@ -67,9 +82,19 @@ const MAX_STARS = 5;
           }
         </div>
 
-        <a href="/cv.pdf" download class="btn-ghost about-cv-btn">
-          Descargar CV
-        </a>
+        {
+          cvUrl ? (
+            <a
+              href={cvUrl}
+              download={cvFilename}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="btn-ghost about-cv-btn"
+            >
+              Descargar CV
+            </a>
+          ) : null
+        }
       </div>
 
       <!-- RIGHT: Programs & skill ratings -->

@@ -12,6 +12,14 @@ export const perfilType = defineType({
       validation: (rule) => rule.required(),
     }),
     defineField({
+      name: 'cv',
+      title: 'Currículum (CV)',
+      type: 'file',
+      options: {
+        accept: '.pdf',
+      },
+    }),
+    defineField({
       name: 'descripcioncorta',
       title: 'Descripción Corta',
       type: 'string',
@@ -42,51 +50,50 @@ export const perfilType = defineType({
       type: 'image',
     }),
     defineField({
-  name: 'programas',
-  title: 'Programas',
-  type: 'array',
-  of: [
-    {
-      type: 'object',
-      fields: [
-        defineField({
-          name: 'nombre',
-          title: 'Programa',
-          type: 'string',
-          validation: (rule) => rule.required(),
-        }),
-        defineField({
-          name: 'nivel',
-          title: 'Nivel (estrellas)',
-          type: 'number',
-          options: {
-            list: [
-              {title: '⭐ 1', value: 1},
-              {title: '⭐⭐ 2', value: 2},
-              {title: '⭐⭐⭐ 3', value: 3},
-              {title: '⭐⭐⭐⭐ 4', value: 4},
-              {title: '⭐⭐⭐⭐⭐ 5', value: 5},
-            ],
-            layout: 'radio', // o 'dropdown'
+      name: 'programas',
+      title: 'Programas',
+      type: 'array',
+      of: [
+        {
+          type: 'object',
+          fields: [
+            defineField({
+              name: 'nombre',
+              title: 'Programa',
+              type: 'string',
+              validation: (rule) => rule.required(),
+            }),
+            defineField({
+              name: 'nivel',
+              title: 'Nivel (estrellas)',
+              type: 'number',
+              options: {
+                list: [
+                  {title: '⭐ 1', value: 1},
+                  {title: '⭐⭐ 2', value: 2},
+                  {title: '⭐⭐⭐ 3', value: 3},
+                  {title: '⭐⭐⭐⭐ 4', value: 4},
+                  {title: '⭐⭐⭐⭐⭐ 5', value: 5},
+                ],
+                layout: 'radio', // o 'dropdown'
+              },
+              validation: (rule) => rule.required().min(1).max(5),
+            }),
+          ],
+          preview: {
+            select: {
+              title: 'nombre',
+              nivel: 'nivel',
+            },
+            prepare({title, nivel}) {
+              return {
+                title,
+                subtitle: '⭐'.repeat(nivel || 0),
+              }
+            },
           },
-          validation: (rule) =>
-            rule.required().min(1).max(5),
-        }),
+        },
       ],
-      preview: {
-        select: {
-          title: 'nombre',
-          nivel: 'nivel',
-        },
-        prepare({title, nivel}) {
-          return {
-            title,
-            subtitle: '⭐'.repeat(nivel || 0),
-          }
-        },
-      },
-    },
-  ],
-}),
+    }),
   ],
 })

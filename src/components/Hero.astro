@@ -5,7 +5,7 @@ const perfil = await sanityClient.fetch(`
   *[_type == "perfil"][0]{
     nombre,
     ocupacion,
-    descripcion,
+    descripcioncorta,
     tags,
     avatar
   }
@@ -48,7 +48,7 @@ const perfil = await sanityClient.fetch(`
       class="mt-8 max-w-md font-inter text-base leading-relaxed text-neutral-400
                animate-fade-up delay-3"
     >
-      {perfil.descripcion}
+      {perfil.descripcioncorta}
     </p>
 
     <!-- CTA buttons -->
