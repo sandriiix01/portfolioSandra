@@ -1,5 +1,6 @@
 ---
 import Nav from "../components/Nav.astro";
+import { ClientRouter } from "astro:transitions";
 
 const { title = "Sandra" } = Astro.props;
 ---
@@ -45,10 +46,13 @@ const { title = "Sandra" } = Astro.props;
       content="Portafolio de Sandra, en Madrid"
     />
     <meta name="twitter:image" content="/logo.svg" />
+    <ClientRouter />
   </head>
   <body>
     <Nav />
-    <slot />
+    <main transition:name="page-content">
+      <slot />
+    </main>
   </body>
 </html>
 <style>
@@ -57,5 +61,77 @@ const { title = "Sandra" } = Astro.props;
     margin: 0;
     width: 100%;
     height: 100%;
+  }
+  main {
+    position: relative; /* Ancla el snapshot correctamente */
+    isolation: isolate; /* Crea un stacking context limpio */
+    min-height: 100%;
+  }
+
+  :root {
+    --duration-out: 280ms;
+    --duration-in: 520ms;
+    --ease-out: cubic-bezier(0.4, 0, 1, 1);
+    --ease-in: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  /* Desactiva la transición del root por completo */
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+  }
+
+  /*
+    Fija el grupo para que NO interpole tamaño/posición automáticamente.
+    Sin esto el contenedor "morphea" entre las dos snapshots.
+  */
+  ::view-transition-group(page-content) {
+    animation-duration: 0ms;
+  }
+
+  ::view-transition-old(page-content) {
+    animation: page-out var(--duration-out) var(--ease-out) both;
+    z-index: 1;
+    mix-blend-mode: normal;
+  }
+
+  ::view-transition-new(page-content) {
+    animation: page-in var(--duration-in) var(--ease-in) both;
+    /* Empieza cuando la vieja termina de salir */
+    animation-delay: var(--duration-out);
+    z-index: 2;
+  }
+
+  @keyframes page-out {
+    from {
+      opacity: 1;
+      filter: blur(0px);
+      transform: scale(1);
+    }
+    to {
+      opacity: 0;
+      filter: blur(6px);
+      transform: scale(0.98);
+    }
+  }
+
+  @keyframes page-in {
+    from {
+      opacity: 0;
+      /* 100dvh = siempre el alto del viewport, nunca del snapshot */
+      transform: translateY(4rem) scale(0.98);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    ::view-transition-old(page-content),
+    ::view-transition-new(page-content) {
+      animation-duration: 0ms !important;
+      animation-delay: 0ms !important;
+    }
   }
 </style>

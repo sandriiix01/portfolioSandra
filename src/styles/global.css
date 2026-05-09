@@ -841,3 +841,22 @@
 
 /* Al soltar el hover vuelven al centro también en cascada (inverso) */
 .cta-blob--tl { transition-delay: 120ms; }
+
+
+
+
+body {
+  /* Espacio reservado para el nav flotante:
+     top(60px) + altura nav(~52px) + gap visual */
+  padding-top: 25vh;
+}
+
+
+
+@media (max-width: 800px) {
+  body {
+    /* En móvil el nav está más arriba (top: 0.75rem) */
+    padding-top: 5rem;
+  }
+
+}

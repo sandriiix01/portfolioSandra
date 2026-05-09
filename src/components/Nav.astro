@@ -40,7 +40,12 @@ const navLinks = [
     </ul>
 
     <!-- CTA (desktop) -->
-    <a href="#contacto" class="btn-primary nav-cta nav-cta--desktop">
+    <a
+      href="https://www.linkedin.com/in/sandra-guillen/"
+      class="btn-primary nav-cta nav-cta--desktop"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
       ¿Hablamos?
     </a>
 
@@ -104,62 +109,90 @@ const navLinks = [
 
   <!-- CTA inside mobile menu -->
   <div class="mobile-menu__footer">
-    <a href="/#contacto" class="btn-primary mobile-menu__cta"> ¿Hablamos? </a>
+    <a
+      href="https://www.linkedin.com/in/sandra-guillen/"
+      class="btn-primary mobile-menu__cta"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      ¿Hablamos?
+    </a>
   </div>
 </div>
 
 <script>
-  // ── Scroll behavior ──
-  const header = document.getElementById("main-nav");
   const SCROLL_THRESHOLD = 10;
+  const navWindow = window as Window & { __navCleanup?: () => void };
 
-  function onScroll() {
-    if (window.scrollY > SCROLL_THRESHOLD) {
-      header?.classList.add("nav--scrolled");
-    } else {
-      header?.classList.remove("nav--scrolled");
+  function initNav() {
+    navWindow.__navCleanup?.();
+
+    const header = document.getElementById("main-nav");
+    const burger = document.getElementById("nav-burger");
+    const closeBtn = document.getElementById("nav-close");
+    const menu = document.getElementById("mobile-menu");
+
+    if (!header) return;
+
+    function onScroll() {
+      const activeHeader = document.getElementById("main-nav");
+      if (!activeHeader) return;
+
+      if (window.scrollY > SCROLL_THRESHOLD) {
+        activeHeader.classList.add("nav--scrolled");
+      } else {
+        activeHeader.classList.remove("nav--scrolled");
+      }
     }
-  }
-  window.addEventListener("scroll", onScroll, { passive: true });
-  onScroll();
 
-  // ── Mobile menu ──
-  const burger = document.getElementById("nav-burger");
-  const closeBtn = document.getElementById("nav-close");
-  const menu = document.getElementById("mobile-menu");
-
-  function openMenu() {
-    menu?.classList.add("is-open");
-    burger?.setAttribute("aria-expanded", "true");
-    menu?.setAttribute("aria-hidden", "false");
-    if (burger) {
-      burger.style.opacity = "0";
-      burger.style.pointerEvents = "none";
+    function openMenu() {
+      menu?.classList.add("is-open");
+      burger?.setAttribute("aria-expanded", "true");
+      menu?.setAttribute("aria-hidden", "false");
+      if (burger) {
+        burger.style.opacity = "0";
+        burger.style.pointerEvents = "none";
+      }
+      document.body.style.overflow = "hidden";
     }
-    document.body.style.overflow = "hidden";
-  }
 
-  function closeMenu() {
-    menu?.classList.remove("is-open");
-    burger?.setAttribute("aria-expanded", "false");
-    menu?.setAttribute("aria-hidden", "true");
-    if (burger) {
-      burger.style.opacity = "";
-      burger.style.pointerEvents = "";
+    function closeMenu() {
+      menu?.classList.remove("is-open");
+      burger?.setAttribute("aria-expanded", "false");
+      menu?.setAttribute("aria-hidden", "true");
+      if (burger) {
+        burger.style.opacity = "";
+        burger.style.pointerEvents = "";
+      }
+      document.body.style.overflow = "";
     }
-    document.body.style.overflow = "";
+
+    function onKeydown(e: KeyboardEvent) {
+      if (e.key === "Escape") closeMenu();
+    }
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    burger?.addEventListener("click", openMenu);
+    closeBtn?.addEventListener("click", closeMenu);
+    menu?.querySelectorAll("a").forEach((link) => {
+      link.addEventListener("click", closeMenu);
+    });
+    document.addEventListener("keydown", onKeydown);
+
+    onScroll();
+
+    navWindow.__navCleanup = () => {
+      window.removeEventListener("scroll", onScroll);
+      burger?.removeEventListener("click", openMenu);
+      closeBtn?.removeEventListener("click", closeMenu);
+      menu?.querySelectorAll("a").forEach((link) => {
+        link.removeEventListener("click", closeMenu);
+      });
+      document.removeEventListener("keydown", onKeydown);
+      document.body.style.overflow = "";
+    };
   }
 
-  burger?.addEventListener("click", openMenu);
-  closeBtn?.addEventListener("click", closeMenu);
-
-  // Close on link click
-  menu?.querySelectorAll("a").forEach((link) => {
-    link.addEventListener("click", closeMenu);
-  });
-
-  // Close on Escape
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") closeMenu();
-  });
+  document.addEventListener("astro:page-load", initNav);
+  initNav();
 </script>
