@@ -19,6 +19,17 @@ type Perfil = {
       originalFilename?: string;
     };
   };
+  cvEn?: {
+    asset?: {
+      url?: string;
+      originalFilename?: string;
+    };
+  };
+  avatar?: {
+    asset?: {
+      url?: string;
+    };
+  };
   programas?: PerfilProgram[];
 };
 
@@ -31,9 +42,20 @@ const perfil = await sanityClient.fetch<Perfil | null>(`
         originalFilename
       }
     },
+    cvEn{
+      asset->{
+        url,
+        originalFilename
+      }
+    },
     descripcion{
       es,
       en
+    },
+    avatar{
+      asset->{
+        url
+      }
     },
     programas[]{
       nombre,
@@ -44,6 +66,10 @@ const perfil = await sanityClient.fetch<Perfil | null>(`
 
 const cvUrl = perfil?.cv?.asset?.url;
 const cvFilename = perfil?.cv?.asset?.originalFilename ?? "cv.pdf";
+const cvEnUrl = perfil?.cvEn?.asset?.url;
+const cvEnFilename = perfil?.cvEn?.asset?.originalFilename ?? "cv-en.pdf";
+const avatarUrl = perfil?.avatar?.asset?.url;
+const profileName = perfil?.nombre ?? "Sandra Guillen Marcos";
 
 const programs = (perfil?.programas ?? []).map((program) => ({
   name: program.nombre ?? "Programa",
@@ -107,18 +133,49 @@ const MAX_STARS = 5;
           }
         </div>
 
+        <div class="about-cv-actions">
+          {
+            cvUrl ? (
+              <a
+                href={cvUrl}
+                download={cvFilename}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="btn-ghost about-cv-btn"
+                data-i18n-about="downloadCV"
+              >
+                {aboutDictionary[defaultLang].general.downloadCV}
+              </a>
+            ) : null
+          }
+
+          {
+            cvEnUrl ? (
+              <a
+                href={cvEnUrl}
+                download={cvEnFilename}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="btn-ghost about-cv-btn"
+                data-i18n-about="downloadCVEn"
+              >
+                {aboutDictionary[defaultLang].general.downloadCVEn}
+              </a>
+            ) : null
+          }
+        </div>
+
         {
-          cvUrl ? (
-            <a
-              href={cvUrl}
-              download={cvFilename}
-              target="_blank"
-              rel="noopener noreferrer"
-              class="btn-ghost about-cv-btn"
-              data-i18n-about="downloadCV"
-            >
-              {aboutDictionary[defaultLang].general.downloadCV}
-            </a>
+          avatarUrl ? (
+            <figure class="about-avatar-wrap">
+              <img
+                src={avatarUrl}
+                alt={profileName}
+                class="about-avatar"
+                loading="lazy"
+                decoding="async"
+              />
+            </figure>
           ) : null
         }
       </div>

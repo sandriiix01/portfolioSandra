@@ -600,6 +600,38 @@
   text-decoration: none;
 }
 
+.about-cv-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.about-avatar-wrap {
+  width: min(100%, 420px);
+  border-radius: 1.25rem;
+  overflow: hidden;
+  perspective: 1200px;
+}
+
+.about-avatar {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 1.25rem;
+  object-fit: cover;
+  transform: translate3d(0px, 18px, -160px) rotateX(-6deg) rotateY(-14deg);
+  transform-origin: center;
+  transition: transform 500ms var(--ease-standard), box-shadow 500ms var(--ease-standard);
+  box-shadow: 0 22px 48px rgba(0, 0, 0, 0.45);
+  will-change: transform;
+}
+
+.about-avatar:hover {
+  transform: translate3d(0, 0, 0) rotateX(0deg) rotateY(0deg);
+  box-shadow: 0 14px 28px rgba(255, 255, 255, 0.38);
+}
+
 /* ── RIGHT: Skills ── */
 .about-skills__title {
   font-family: 'Manrope', sans-serif;
@@ -692,6 +724,14 @@
   .star-icon {
     width: 0.9rem;
     height: 0.9rem;
+  }
+
+  .about-cv-actions {
+    gap: 0.6rem;
+  }
+
+  .about-avatar-wrap {
+    width: 100%;
   }
 }
 
