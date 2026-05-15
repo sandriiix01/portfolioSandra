@@ -4,12 +4,26 @@ import { sanityClient } from "../lib/sanity";
 const perfil = await sanityClient.fetch(`
   *[_type == "perfil"][0]{
     nombre,
-    ocupacion,
-    descripcioncorta,
+    ocupacion{
+      es,
+      en
+    },
+    descripcioncorta{
+      es,
+      en
+    },
     tags,
     avatar
   }
 `);
+
+const defaultLang = "es";
+const ocupacionEs = perfil?.ocupacion?.es ?? perfil?.ocupacion?.en ?? "";
+const ocupacionEn = perfil?.ocupacion?.en ?? perfil?.ocupacion?.es ?? "";
+const descripcionCortaEs =
+  perfil?.descripcioncorta?.es ?? perfil?.descripcioncorta?.en ?? "";
+const descripcionCortaEn =
+  perfil?.descripcioncorta?.en ?? perfil?.descripcioncorta?.es ?? "";
 ---
 
 <!-- ───────────────────────────────────────────
@@ -28,8 +42,11 @@ const perfil = await sanityClient.fetch(`
                text-[11px] font-inter font-medium uppercase tracking-widest text-neutral-400
                animate-fade-up delay-1"
       aria-label="Especialidad"
+      id="hero-ocupacion"
+      data-es={ocupacionEs}
+      data-en={ocupacionEn}
     >
-      {perfil.ocupacion}
+      {defaultLang === "es" ? ocupacionEs : ocupacionEn}
     </div>
 
     <!-- Display headline -->
@@ -46,15 +63,18 @@ const perfil = await sanityClient.fetch(`
 
     <!-- Sub-copy — appears at a larger desktop breakpoint -->
     <p
-      class="mt-8 max-w-md font-inter text-base leading-relaxed text-neutral-400
+      class="mt-4 max-w-md font-inter text-base leading-relaxed text-neutral-400
                animate-fade-up delay-3"
+      id="hero-descripcion-corta"
+      data-es={descripcionCortaEs}
+      data-en={descripcionCortaEn}
     >
-      {perfil.descripcioncorta}
+      {defaultLang === "es" ? descripcionCortaEs : descripcionCortaEn}
     </p>
 
     <!-- CTA buttons -->
     <div
-      class="mt-12 flex flex-wrap items-center gap-4 animate-fade-up delay-4"
+      class="mt-12 mb-32 flex flex-wrap items-center gap-4 animate-fade-up delay-4"
     >
       <!-- Primary -->
       <a
@@ -92,14 +112,53 @@ const perfil = await sanityClient.fetch(`
   <!-- Decorative large ghost text — editorial depth element -->
   <span
     aria-hidden="true"
-    class="absolute right-10 bottom-12 font-manrope font-bold text-[clamp(6rem,18vw,16rem)]
-             leading-none tracking-tighter text-white/[0.025] select-none pointer-events-none
+    class="absolute right-10 bottom-2 lg:bottom-6 font-manrope font-bold text-[clamp(6rem,18vw,16rem)]
+             leading-none tracking-tighter text-white/2.5 select-none pointer-events-none
              translate-x-8 lg:translate-x-0 text-right"
   >
     Sandra Guillén
   </span>
 </section>
 <!-- /hero -->
+<script>
+  const HERO_LANG_STORAGE_KEY = "site-lang";
+
+  function initHeroLanguage() {
+    const ocupacionNode = document.getElementById("hero-ocupacion");
+    const descripcionNode = document.getElementById("hero-descripcion-corta");
+
+    if (!ocupacionNode || !descripcionNode) return;
+
+    function sanitizeLang(value: string | null): "es" | "en" {
+      return value === "en" ? "en" : "es";
+    }
+
+    function applyHeroLanguage(lang: "es" | "en") {
+      const ocupacionText =
+        ocupacionNode.getAttribute(`data-${lang}`) ??
+        ocupacionNode.getAttribute("data-es") ??
+        "";
+      const descripcionText =
+        descripcionNode.getAttribute(`data-${lang}`) ??
+        descripcionNode.getAttribute("data-es") ??
+        "";
+
+      ocupacionNode.textContent = ocupacionText;
+      descripcionNode.textContent = descripcionText;
+    }
+
+    const initialLang = sanitizeLang(localStorage.getItem(HERO_LANG_STORAGE_KEY));
+    applyHeroLanguage(initialLang);
+
+    window.addEventListener("site-language-change", (event) => {
+      const customEvent = event as CustomEvent<{ lang?: string }>;
+      applyHeroLanguage(sanitizeLang(customEvent.detail?.lang ?? null));
+    });
+  }
+
+  document.addEventListener("astro:page-load", initHeroLanguage);
+  initHeroLanguage();
+</script>
 <style>
   canvas {
     display: block;
