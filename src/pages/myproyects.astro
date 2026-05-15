@@ -161,12 +161,14 @@ const pageDictionary = translations;
  
           <!-- Título + chevron -->
           <div class="flex items-center gap-4">
-            <h2 class="font-manrope font-black tracking-tighter leading-none text-neutral-100
-                       text-[clamp(2.8rem,7vw,5rem)] uppercase"
-                data-i18n-myprojects-title
-                data-es={project.tituloEs}
-                data-en={project.tituloEn}
-            >
+            <h2
+  class="font-manrope font-black tracking-tighter leading-none text-neutral-100
+         text-[clamp(2.8rem,3.5vw,5rem)] uppercase"
+  style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"
+  data-i18n-myprojects-title
+  data-es={project.tituloEs}
+  data-en={project.tituloEn}
+>
               {project.titulo}
             </h2>
             <!-- Chevron down -->
@@ -207,7 +209,7 @@ const pageDictionary = translations;
             </p>
           </div>
 
-          {project.links && project.links.length > 0 && (
+          {/* {project.links && project.links.length > 0 && (
             <div class="mt-2 flex flex-wrap gap-2">
               {project.links.map((link) => (
                 <a
@@ -226,7 +228,7 @@ const pageDictionary = translations;
                 </a>
               ))}
             </div>
-          )}
+          )} */}
 
             <!-- Reemplaza tu <a> existente por este bloque completo -->
  
@@ -350,7 +352,7 @@ const pageDictionary = translations;
 
       projectTagsNodes.forEach((node) => {
         const localizedTags = parseLocalizedList(node, lang);
-        const tags = localizedTags.length > 0 ? localizedTags : [lang === 'en' ? 'Project' : 'Proyecto'];
+        const tags = localizedTags.length > 0 ? localizedTags : "";
 
         node.innerHTML = '';
         tags.forEach((tag) => {
