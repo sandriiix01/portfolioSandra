@@ -1,8 +1,13 @@
 ---
 import Nav from "../components/Nav.astro";
+import { DEFAULT_LANG, translations } from "../i18n/translations";
 import { ClientRouter } from "astro:transitions";
 
 const { title = "Sandra" } = Astro.props;
+const defaultLang = DEFAULT_LANG;
+const backToTopLabel = translations[defaultLang].general.backToTop;
+const backToTopLabelEs = translations.es.general.backToTop;
+const backToTopLabelEn = translations.en.general.backToTop;
 ---
 
 <!doctype html>
@@ -54,6 +59,23 @@ const { title = "Sandra" } = Astro.props;
     <main transition:name="page-content" class="">
       <slot />
     </main>
+    <button
+      id="back-to-top"
+      type="button"
+      class="back-to-top"
+      aria-label={backToTopLabel}
+      title={backToTopLabel}
+      data-label-es={backToTopLabelEs}
+      data-label-en={backToTopLabelEn}
+    >
+      <span aria-hidden="true">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <path d="M11.25 20C11.25 20.4142 11.5858 20.75 12 20.75C12.4142 20.75 12.75 20.4142 12.75 20H11.25ZM12.75 20L12.75 4L11.25 4L11.25 20H12.75Z" fill="currentColor"/>
+          <path d="M18 10L12 4L6 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+      <span class="sr-only" data-i18n-back-to-top>{backToTopLabel}</span>
+    </button>
   </body>
 </html>
 <style>
@@ -151,6 +173,98 @@ nav,
 main {
   position: relative;
   z-index: 1;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.back-to-top {
+  position: fixed;
+  right: max(1.5rem, calc((100vw - 1800px) / 2 + 1.5rem));
+  bottom: 8.25rem;
+  width: 4rem;
+  height: 4rem;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 9999px;
+  background: rgba(14, 14, 14, 0.72);
+  color: #ffffff;
+  font-size: 1.3rem;
+  line-height: 1;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.34);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  opacity: 0;
+  transform: translateY(0.75rem);
+  pointer-events: none;
+  transition: opacity 220ms ease, transform 220ms ease, border-color 220ms ease,
+    background-color 220ms ease;
+  z-index: 140;
+  background: #1f2020;
+}
+
+.back-to-top svg {
+  width: 1.15rem;
+  height: 1.15rem;
+  display: block;
+}
+
+.back-to-top:hover,
+.back-to-top:focus-visible {
+  opacity: 1;
+  border-color: rgba(255, 255, 255, 0.55);
+  background: rgba(24, 24, 24, 0.88);
+  transform: translateY(0);
+}
+
+.back-to-top:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.8);
+  outline-offset: 2px;
+}
+
+.back-to-top.is-visible {
+  opacity: 0.78;
+  transform: translateY(0);
+  visibility: visible;
+  pointer-events: auto;
+}
+
+@media (max-width: 640px) {
+  .back-to-top {
+    width: 3rem;
+    height: 3rem;
+    right: 1.5rem;
+    bottom: 2rem;
+  }
+}
+
+@media (min-width: 640px) {
+  .back-to-top {
+    right: max(3rem, calc((100vw - 1800px) / 2 + 3rem));
+  }
+}
+
+@media (min-width: 1024px) {
+  .back-to-top {
+    right: max(6rem, calc((100vw - 1800px) / 2 + 6rem));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .back-to-top {
+    transition: none;
+  }
 }
 </style>
 <script is:inline src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
@@ -254,5 +368,86 @@ main {
   if (!window.__particlesPageLoadHook__) {
     document.addEventListener("astro:page-load", initParticles);
     window.__particlesPageLoadHook__ = true;
+  }
+
+  function initBackToTop() {
+    const button = document.getElementById("back-to-top");
+    if (!button) {
+      return;
+    }
+
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    function sanitizeLang(value) {
+      return value === "en" ? "en" : "es";
+    }
+
+    function applyBackToTopLanguage(lang) {
+      const label = lang === "en" ? button.dataset.labelEn : button.dataset.labelEs;
+      if (!label) {
+        return;
+      }
+
+      button.setAttribute("aria-label", label);
+      button.setAttribute("title", label);
+
+      const labelNode = button.querySelector("[data-i18n-back-to-top]");
+      if (labelNode) {
+        labelNode.textContent = label;
+      }
+    }
+
+    const storedLang = sanitizeLang(localStorage.getItem("site-lang"));
+    applyBackToTopLanguage(storedLang);
+
+    function setVisible(isVisible) {
+      if (isVisible) {
+        button.classList.add("is-visible");
+      } else {
+        button.classList.remove("is-visible");
+      }
+    }
+
+    button.onclick = () => {
+      window.scrollTo({
+        top: 0,
+        behavior: reduceMotion ? "auto" : "smooth",
+      });
+    };
+
+    if (window.__backToTopScrollHandler__) {
+      window.removeEventListener("scroll", window.__backToTopScrollHandler__);
+      window.removeEventListener("resize", window.__backToTopScrollHandler__);
+      window.__backToTopScrollHandler__ = null;
+    }
+
+    const updateVisibility = () => {
+      const scrollingElement = document.scrollingElement || document.documentElement;
+      const scrollTop = Math.max(scrollingElement.scrollTop || 0, window.scrollY || 0);
+      setVisible(scrollTop > 120);
+    };
+
+    updateVisibility();
+    window.addEventListener("scroll", updateVisibility, { passive: true });
+    window.addEventListener("resize", updateVisibility);
+    window.__backToTopScrollHandler__ = updateVisibility;
+
+    if (window.__backToTopLangHandler__) {
+      window.removeEventListener("site-language-change", window.__backToTopLangHandler);
+    }
+
+    window.__backToTopLangHandler__ = (event) => {
+      const customEvent = event;
+      applyBackToTopLanguage(sanitizeLang(customEvent?.detail?.lang ?? null));
+    };
+
+    window.addEventListener("site-language-change", window.__backToTopLangHandler);
+  }
+
+  initBackToTop();
+
+  if (!window.__backToTopPageLoadHook__) {
+    document.addEventListener("astro:page-load", initBackToTop);
+    window.__backToTopPageLoadHook__ = true;
   }
 </script>
