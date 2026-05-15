@@ -1,5 +1,6 @@
 ---
 import { sanityClient } from "../lib/sanity";
+import { DEFAULT_LANG, translations } from "../i18n/translations";
 
 const perfil = await sanityClient.fetch(`
   *[_type == "perfil"][0]{
@@ -17,7 +18,8 @@ const perfil = await sanityClient.fetch(`
   }
 `);
 
-const defaultLang = "es";
+const defaultLang = DEFAULT_LANG;
+const heroDictionary = translations;
 const ocupacionEs = perfil?.ocupacion?.es ?? perfil?.ocupacion?.en ?? "";
 const ocupacionEn = perfil?.ocupacion?.en ?? perfil?.ocupacion?.es ?? "";
 const descripcionCortaEs =
@@ -35,7 +37,7 @@ const descripcionCortaEn =
   aria-label="Sección principal"
 >
   <!-- Content wrapper — offset left for asymmetric rhythm -->
-  <div class="relative z-10 max-w-5xl w-full pt-32 pb-24">
+  <div class="relative z-10 max-w-5xl w-full pt-32 pb-4">
     <!-- Chip / Label pill -->
     <div
       class="inline-flex items-center px-4 py-1.5 rounded-full border border-white/10 mb-10
@@ -57,97 +59,121 @@ const descripcionCortaEn =
                text-[clamp(3rem,8vw,6rem)]
                animate-fade-up delay-2"
     >
-      Diseñar con<br />
-      un <em class="serif-accent not-italic">propósito</em>
+      {heroDictionary[defaultLang].hero.title}</br>
+      {heroDictionary[defaultLang].hero.title2}
     </h1>
+    
+  </div>
 
-    <!-- Sub-copy — appears at a larger desktop breakpoint -->
-    <p
-      class="mt-4 max-w-md font-inter text-base leading-relaxed text-neutral-400
+  <!-- Sub-copy — appears at a larger desktop breakpoint -->
+  <p
+    class="mt-4 max-w-md font-inter text-base leading-relaxed text-neutral-400
                animate-fade-up delay-3"
-      id="hero-descripcion-corta"
-      data-es={descripcionCortaEs}
-      data-en={descripcionCortaEn}
-    >
-      {defaultLang === "es" ? descripcionCortaEs : descripcionCortaEn}
-    </p>
+    id="hero-descripcion-corta"
+    data-es={descripcionCortaEs}
+    data-en={descripcionCortaEn}
+  >
+    {defaultLang === "es" ? descripcionCortaEs : descripcionCortaEn}
+  </p>
 
-    <!-- CTA buttons -->
-    <div
-      class="mt-12 mb-32 flex flex-wrap items-center gap-4 animate-fade-up delay-4"
-    >
-      <!-- Primary -->
-      <a
-        href="#proyectos"
-        class="inline-flex items-center gap-2 px-8 py-3 rounded-full
+  <!-- CTA buttons -->
+  <div
+    class="mt-12 mb-32 flex flex-wrap items-center gap-4 animate-fade-up delay-4"
+  >
+    <!-- Primary -->
+    <a
+      href="#proyectos"
+      class="inline-flex items-center gap-2 px-8 py-3 rounded-full
                  bg-neutral-100 text-black font-manrope font-semibold text-sm
                  transition-all duration-300 hover:bg-white hover:-translate-y-px"
+    >
+      <span data-i18n-hero="viewProjects">
+        {heroDictionary[defaultLang].hero.viewProjects}
+      </span>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 20 20"
+        fill="currentColor"
+        class="w-4 h-4"
       >
-        Ver proyectos
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 20 20"
-          fill="currentColor"
-          class="w-4 h-4"
-        >
-          <path
-            fill-rule="evenodd"
-            d="M3 10a.75.75 0 0 1 .75-.75h10.638L10.23 5.29a.75.75 0 1 1 1.04-1.08l5.5 5.25a.75.75 0 0 1 0 1.08l-5.5 5.25a.75.75 0 1 1-1.04-1.08l4.158-3.96H3.75A.75.75 0 0 1 3 10Z"
-            clip-rule="evenodd"></path>
-        </svg>
-      </a>
+        <path
+          fill-rule="evenodd"
+          d="M3 10a.75.75 0 0 1 .75-.75h10.638L10.23 5.29a.75.75 0 1 1 1.04-1.08l5.5 5.25a.75.75 0 0 1 0 1.08l-5.5 5.25a.75.75 0 1 1-1.04-1.08l4.158-3.96H3.75A.75.75 0 0 1 3 10Z"
+          clip-rule="evenodd"></path>
+      </svg>
+    </a>
 
-      <!-- Ghost -->
-      <a
-        href="#contacto"
-        class="inline-flex items-center gap-2 px-8 py-3 rounded-full
+    <!-- Ghost -->
+    <a
+      href="#contacto"
+      class="inline-flex items-center gap-2 px-8 py-3 rounded-full
                  border border-white/20 text-neutral-300 font-manrope font-medium text-sm
                  transition-all duration-300 hover:bg-white/5 hover:border-white/30"
-      >
-        ¿Hablamos?
-      </a>
-    </div>
-  </div><!-- /content wrapper -->
+    >
+      <span data-i18n-hero="contact">
+        {heroDictionary[defaultLang].hero.contact}
+      </span>
+    </a>
+  </div>
+</section><!-- /content wrapper -->
 
-  <!-- Decorative large ghost text — editorial depth element -->
-  <span
-    aria-hidden="true"
-    class="absolute right-10 bottom-2 lg:bottom-6 font-manrope font-bold text-[clamp(6rem,18vw,16rem)]
+<!-- Decorative large ghost text — editorial depth element -->
+<span
+  aria-hidden="true"
+  class="absolute right-10 bottom-2 lg:bottom-6 font-manrope font-bold text-[clamp(6rem,18vw,16rem)]
              leading-none tracking-tighter text-white/2.5 select-none pointer-events-none
              translate-x-8 lg:translate-x-0 text-right"
-  >
-    Sandra Guillén
-  </span>
-</section>
+>
+  Sandra Guillén
+</span>
+
 <!-- /hero -->
 <script>
-  const HERO_LANG_STORAGE_KEY = "site-lang";
+  import { LANG_STORAGE_KEY, translations } from "../i18n/translations";
+  const HERO_I18N = {
+    es: translations.es.hero,
+    en: translations.en.hero,
+  };
 
   function initHeroLanguage() {
     const ocupacionNode = document.getElementById("hero-ocupacion");
     const descripcionNode = document.getElementById("hero-descripcion-corta");
+    const heroI18nNodes = Array.from(
+      document.querySelectorAll<HTMLElement>("[data-i18n-hero]"),
+    );
 
     if (!ocupacionNode || !descripcionNode) return;
+    const ocupacionElement = ocupacionNode;
+    const descripcionElement = descripcionNode;
 
     function sanitizeLang(value: string | null): "es" | "en" {
       return value === "en" ? "en" : "es";
     }
 
     function applyHeroLanguage(lang: "es" | "en") {
+      const dictionary = HERO_I18N[lang];
       const ocupacionText =
-        ocupacionNode.getAttribute(`data-${lang}`) ??
-        ocupacionNode.getAttribute("data-es") ??
+        ocupacionElement.getAttribute(`data-${lang}`) ??
+        ocupacionElement.getAttribute("data-es") ??
         "";
       const descripcionText =
-        descripcionNode.getAttribute(`data-${lang}`) ??
-        descripcionNode.getAttribute("data-es") ??
+        descripcionElement.getAttribute(`data-${lang}`) ??
+        descripcionElement.getAttribute("data-es") ??
         "";
 
-      ocupacionNode.textContent = ocupacionText;
-      descripcionNode.textContent = descripcionText;
+      ocupacionElement.textContent = ocupacionText;
+      descripcionElement.textContent = descripcionText;
+
+      heroI18nNodes.forEach((node) => {
+        const key = node.dataset.i18nHero as
+          | keyof typeof dictionary
+          | undefined;
+        if (!key) return;
+        node.textContent = dictionary[key];
+      });
     }
 
-    const initialLang = sanitizeLang(localStorage.getItem(HERO_LANG_STORAGE_KEY));
+    const initialLang = sanitizeLang(localStorage.getItem(LANG_STORAGE_KEY));
     applyHeroLanguage(initialLang);
 
     window.addEventListener("site-language-change", (event) => {

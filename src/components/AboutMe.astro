@@ -1,5 +1,6 @@
 ---
 import { sanityClient } from "../lib/sanity";
+import { DEFAULT_LANG, LANG_STORAGE_KEY, translations } from "../i18n/translations";
 
 type PerfilProgram = {
   nombre?: string;
@@ -49,10 +50,19 @@ const programs = (perfil?.programas ?? []).map((program) => ({
   level: Math.min(Math.max(Math.round(program.nivel ?? 0), 0), 5),
 }));
 
-const aboutParagraphs = (perfil?.descripcion?.es ?? "")
+const aboutParagraphsEs = (perfil?.descripcion?.es ?? "")
   .split("\n")
   .map((line) => line.trim())
   .filter(Boolean);
+
+const aboutParagraphsEn = (perfil?.descripcion?.en ?? perfil?.descripcion?.es ?? "")
+  .split("\n")
+  .map((line) => line.trim())
+  .filter(Boolean);
+
+const defaultLang = DEFAULT_LANG;
+const aboutDictionary = translations;
+const aboutParagraphs = defaultLang === "en" ? aboutParagraphsEn : aboutParagraphsEs;
 
 const MAX_STARS = 5;
 ---
@@ -64,26 +74,35 @@ const MAX_STARS = 5;
   <section class="about-section" id="sobre-mi" aria-label="Sobre mí">
     <!-- ── Top label chip ── -->
     <div class="about-chip-wrap">
-      <span class="chip">Sobre mi</span>
+      <span class="chip" data-i18n-about="aboutMe">
+        {aboutDictionary[defaultLang].general.aboutMe}
+      </span>
     </div>
 
     <!-- ── Display headline ── -->
-    <h2 class="about-headline">
-      Narrativa visual para <em class="serif-accent">comunicar</em>
+    <h2 class="about-headline" >
+      Sandra Guillén Marcos
     </h2>
 
     <!-- ── Two-column body ── -->
     <div class="about-grid">
       <!-- LEFT: Bio -->
       <div class="about-bio">
-        <h3 class="about-bio__title">{perfil?.nombre ?? "Sobre mi"}</h3>
+        <h3 class="about-bio__title" data-i18n-about="aboutMe">{aboutDictionary[defaultLang].general.aboutMe}</h3>
 
-        <div class="about-bio__text">
+        <div
+          id="about-bio-text"
+          class="about-bio__text"
+          data-es={JSON.stringify(aboutParagraphsEs)}
+          data-en={JSON.stringify(aboutParagraphsEn)}
+        >
           {
             aboutParagraphs.length > 0 ? (
               aboutParagraphs.map((paragraph) => <p>{paragraph}</p>)
             ) : (
-              <p>Sin descripcion disponible.</p>
+              <p data-i18n-about="noDescription">
+                {aboutDictionary[defaultLang].general.noDescription}
+              </p>
             )
           }
         </div>
@@ -96,8 +115,9 @@ const MAX_STARS = 5;
               target="_blank"
               rel="noopener noreferrer"
               class="btn-ghost about-cv-btn"
+              data-i18n-about="downloadCV"
             >
-              Descargar CV
+              {aboutDictionary[defaultLang].general.downloadCV}
             </a>
           ) : null
         }
@@ -105,12 +125,15 @@ const MAX_STARS = 5;
 
       <!-- RIGHT: Programs & skill ratings -->
       <div class="about-skills">
-        <h3 class="about-skills__title">Programas</h3>
+        <h3 class="about-skills__title" data-i18n-about="programs">
+          {aboutDictionary[defaultLang].general.programs}
+        </h3>
 
         <ul
           class="skills-list"
           role="list"
-          aria-label="Programas y nivel de dominio"
+          aria-label={aboutDictionary[defaultLang].general.programsLevelAria}
+          data-i18n-about-aria-label="programsLevelAria"
         >
           {
             programs.length > 0 ? (
@@ -143,7 +166,9 @@ const MAX_STARS = 5;
               ))
             ) : (
               <li class="skills-row">
-                <span class="skills-row__name">Sin programas disponibles</span>
+                <span class="skills-row__name" data-i18n-about="noPrograms">
+                  {aboutDictionary[defaultLang].general.noPrograms}
+                </span>
               </li>
             )
           }
@@ -152,3 +177,88 @@ const MAX_STARS = 5;
     </div><!-- /about-grid -->
   </section>
 </div>
+
+<script>
+  import { LANG_STORAGE_KEY, translations } from "../i18n/translations";
+
+  const ABOUT_I18N = {
+    es: translations.es.general,
+    en: translations.en.general,
+  };
+
+  function initAboutLanguage() {
+    const i18nNodes = Array.from(
+      document.querySelectorAll<HTMLElement>("[data-i18n-about]"),
+    );
+    const i18nAriaNodes = Array.from(
+      document.querySelectorAll<HTMLElement>("[data-i18n-about-aria-label]"),
+    );
+    const bioNode = document.getElementById("about-bio-text");
+
+    function sanitizeLang(value: string | null): "es" | "en" {
+      return value === "en" ? "en" : "es";
+    }
+
+    function renderBioParagraphs(lang: "es" | "en", dictionary: typeof ABOUT_I18N.es) {
+      if (!bioNode) return;
+
+      const raw = bioNode.getAttribute(`data-${lang}`) ?? "[]";
+      let paragraphs: string[] = [];
+
+      try {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) {
+          paragraphs = parsed.filter((item): item is string => typeof item === "string");
+        }
+      } catch {
+        paragraphs = [];
+      }
+
+      bioNode.innerHTML = "";
+
+      if (paragraphs.length === 0) {
+        const paragraph = document.createElement("p");
+        paragraph.textContent = dictionary.noDescription;
+        bioNode.appendChild(paragraph);
+        return;
+      }
+
+      paragraphs.forEach((text) => {
+        const paragraph = document.createElement("p");
+        paragraph.textContent = text;
+        bioNode.appendChild(paragraph);
+      });
+    }
+
+    function applyAboutLanguage(lang: "es" | "en") {
+      const dictionary = ABOUT_I18N[lang];
+
+      i18nNodes.forEach((node) => {
+        const key = node.dataset.i18nAbout as keyof typeof dictionary | undefined;
+        if (!key) return;
+        node.textContent = dictionary[key];
+      });
+
+      i18nAriaNodes.forEach((node) => {
+        const key = node.dataset.i18nAboutAriaLabel as
+          | keyof typeof dictionary
+          | undefined;
+        if (!key) return;
+        node.setAttribute("aria-label", dictionary[key]);
+      });
+
+      renderBioParagraphs(lang, dictionary);
+    }
+
+    const initialLang = sanitizeLang(localStorage.getItem(LANG_STORAGE_KEY));
+    applyAboutLanguage(initialLang);
+
+    window.addEventListener("site-language-change", (event) => {
+      const customEvent = event as CustomEvent<{ lang?: string }>;
+      applyAboutLanguage(sanitizeLang(customEvent.detail?.lang ?? null));
+    });
+  }
+
+  document.addEventListener("astro:page-load", initAboutLanguage);
+  initAboutLanguage();
+</script>

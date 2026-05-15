@@ -7,32 +7,13 @@ const isHome = pathname === "/";
 const isProjects =
   pathname === "/myproyects" || pathname.startsWith("/proyecto/");
 
-const navDictionary = {
-  es: {
-    home: "Inicio",
-    projects: "Proyectos",
-    contact: "¿Hablamos?",
-    openMenu: "Abrir menú",
-    closeMenu: "Cerrar menú",
-    mainNav: "Navegación principal",
-    mobileNav: "Menú móvil",
-    toggleLang: "Cambiar idioma",
-  },
-  en: {
-    home: "Home",
-    projects: "Projects",
-    contact: "Let's talk",
-    openMenu: "Open menu",
-    closeMenu: "Close menu",
-    mainNav: "Main navigation",
-    mobileNav: "Mobile menu",
-    toggleLang: "Change language",
-  },
-};
+import { DEFAULT_LANG, translations } from "../i18n/translations";
+const navDictionary = translations;
+const defaultLang = DEFAULT_LANG;
 
-const defaultLang = "es";
+type NavLinkKey = "home" | "projects";
 
-const navLinks = [
+const navLinks: Array<{ key: NavLinkKey; href: string; active: boolean }> = [
   { key: "home", href: "/", active: isHome },
   { key: "projects", href: "/myproyects", active: isProjects },
   // { label: "Sobre mí", href: "/#sobre-mi", active: false },
@@ -41,7 +22,11 @@ const navLinks = [
 ---
 
 <header id="main-nav" class="nav-header">
-  <nav class="nav-inner" aria-label={navDictionary[defaultLang].mainNav} data-i18n-aria-label="mainNav">
+  <nav
+    class="nav-inner"
+    aria-label={navDictionary[defaultLang].nav.mainNav}
+    data-i18n-aria-label="mainNav"
+  >
     <!-- Logo -->
     <a href="/" class="nav-logo" aria-label="Ir al inicio">
       Portfolio<span class="nav-logo-dot">.</span>
@@ -58,39 +43,39 @@ const navLinks = [
               aria-current={link.active ? "page" : undefined}
               data-i18n={link.key}
             >
-              {navDictionary[defaultLang][link.key]}
+              {navDictionary[defaultLang].nav[link.key]}
             </a>
           </li>
         ))
       }
     </ul>
     <div class="flex gap-4">
-    <button
-      type="button"
-      class="lang-toggle nav-lang nav-lang--desktop"
-      data-lang-toggle
-      aria-label={navDictionary[defaultLang].toggleLang}
-      data-i18n-aria-label="toggleLang"
-    >
-      ES
-    </button>
+      <button
+        type="button"
+        class="lang-toggle nav-lang nav-lang--desktop"
+        data-lang-toggle
+        aria-label={navDictionary[defaultLang].nav.toggleLang}
+        data-i18n-aria-label="toggleLang"
+      >
+        ES
+      </button>
 
-    <!-- CTA (desktop) -->
-    <a
-      href="https://www.linkedin.com/in/sandra-guillen/"
-      class="btn-primary nav-cta nav-cta--desktop"
-      target="_blank"
-      rel="noopener noreferrer"
-      data-i18n="contact"
-    >
-      {navDictionary[defaultLang].contact}
-    </a>
+      <!-- CTA (desktop) -->
+      <a
+        href="https://www.linkedin.com/in/sandra-guillen/"
+        class="btn-primary nav-cta nav-cta--desktop"
+        target="_blank"
+        rel="noopener noreferrer"
+        data-i18n="contact"
+      >
+        {navDictionary[defaultLang].nav.contact}
+      </a>
     </div>
     <!-- Burger button (mobile only) -->
     <button
       id="nav-burger"
       class="nav-burger"
-      aria-label={navDictionary[defaultLang].openMenu}
+      aria-label={navDictionary[defaultLang].nav.openMenu}
       data-i18n-aria-label="openMenu"
       aria-expanded="false"
       aria-controls="mobile-menu"
@@ -110,7 +95,7 @@ const navLinks = [
   <button
     id="nav-close"
     class="mobile-menu__close"
-    aria-label={navDictionary[defaultLang].closeMenu}
+    aria-label={navDictionary[defaultLang].nav.closeMenu}
     data-i18n-aria-label="closeMenu"
   >
     <svg
@@ -129,7 +114,10 @@ const navLinks = [
   </button>
 
   <!-- Nav links — large display size -->
-  <nav aria-label={navDictionary[defaultLang].mobileNav} data-i18n-aria-label="mobileNav">
+  <nav
+    aria-label={navDictionary[defaultLang].nav.mobileNav}
+    data-i18n-aria-label="mobileNav"
+  >
     <ul class="mobile-menu__links" role="list">
       {
         navLinks.map((link, i) => (
@@ -143,7 +131,7 @@ const navLinks = [
               aria-current={link.active ? "page" : undefined}
               data-i18n={link.key}
             >
-              {navDictionary[defaultLang][link.key]}
+              {navDictionary[defaultLang].nav[link.key]}
             </a>
           </li>
         ))
@@ -157,8 +145,8 @@ const navLinks = [
       type="button"
       class="lang-toggle mobile-menu__lang-toggle"
       data-lang-toggle
-      aria-label={navDictionary[defaultLang].toggleLang}
-      data-i18n-aria-label="toggleLang"
+      aria-label={navDictionary[defaultLang].nav.toggleLang}
+      data-i18n-aria-label="nav.toggleLang"
     >
       ES
     </button> -->
@@ -169,38 +157,18 @@ const navLinks = [
       rel="noopener noreferrer"
       data-i18n="contact"
     >
-      {navDictionary[defaultLang].contact}
+      {navDictionary[defaultLang].nav.contact}
     </a>
   </div>
 </div>
 
 <script>
   const SCROLL_THRESHOLD = 10;
-  const LANG_STORAGE_KEY = "site-lang";
-  const SUPPORTED_LANGS = ["es", "en"];
+  import { LANG_STORAGE_KEY, translations } from "../i18n/translations";
   const I18N = {
-    es: {
-      home: "Inicio",
-      projects: "Proyectos",
-      contact: "¿Hablamos?",
-      openMenu: "Abrir menú",
-      closeMenu: "Cerrar menú",
-      mainNav: "Navegación principal",
-      mobileNav: "Menú móvil",
-      toggleLang: "Cambiar idioma",
-    },
-    en: {
-      home: "Home",
-      projects: "Projects",
-      contact: "Let's talk",
-      openMenu: "Open menu",
-      closeMenu: "Close menu",
-      mainNav: "Main navigation",
-      mobileNav: "Mobile menu",
-      toggleLang: "Change language",
-    },
-  } as const;
-
+    es: translations.es.nav,
+    en: translations.en.nav,
+  };
   const navWindow = window as Window & { __navCleanup?: () => void };
 
   function initNav() {
@@ -211,13 +179,13 @@ const navLinks = [
     const closeBtn = document.getElementById("nav-close");
     const menu = document.getElementById("mobile-menu");
     const langToggles = Array.from(
-      document.querySelectorAll<HTMLButtonElement>("[data-lang-toggle]")
+      document.querySelectorAll<HTMLButtonElement>("[data-lang-toggle]"),
     );
     const i18nNodes = Array.from(
-      document.querySelectorAll<HTMLElement>("[data-i18n]")
+      document.querySelectorAll<HTMLElement>("[data-i18n]"),
     );
     const i18nAriaNodes = Array.from(
-      document.querySelectorAll<HTMLElement>("[data-i18n-aria-label]")
+      document.querySelectorAll<HTMLElement>("[data-i18n-aria-label]"),
     );
 
     if (!header) return;
@@ -254,7 +222,7 @@ const navLinks = [
       document.documentElement.lang = lang;
       localStorage.setItem(LANG_STORAGE_KEY, lang);
       window.dispatchEvent(
-        new CustomEvent("site-language-change", { detail: { lang } })
+        new CustomEvent("site-language-change", { detail: { lang } }),
       );
     }
 
@@ -345,7 +313,9 @@ const navLinks = [
     color: #e5e7eb;
     background: transparent;
     min-width: 3rem;
-    transition: border-color 0.2s ease, background-color 0.2s ease;
+    transition:
+      border-color 0.2s ease,
+      background-color 0.2s ease;
   }
 
   .lang-toggle:hover {
@@ -360,5 +330,4 @@ const navLinks = [
   .mobile-menu__lang-toggle {
     margin-bottom: 1rem;
   }
-  
 </style>

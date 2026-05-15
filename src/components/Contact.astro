@@ -1,8 +1,9 @@
 ---
-// ContactSection.astro
-// src/components/ContactSection.astro
+import { DEFAULT_LANG, LANG_STORAGE_KEY, translations } from "../i18n/translations";
 
 const email = "sandraguillenmarcos@gmail.com";
+const defaultLang = DEFAULT_LANG;
+const dictionary = translations;
 
 const socials = [
   {
@@ -23,16 +24,18 @@ const socials = [
 <section
   id="contacto"
   class="relative flex flex-col items-center text-center px-6 py-28 sm:py-36 overflow-hidden"
-  aria-label="Contacto"
+  aria-label={dictionary[defaultLang].general.talk}
+  data-i18n-contact-aria-label="talk"
 >
 
   <!-- Decorative ghost text backdrop -->
   <span
+    data-i18n-contact="talk"
     aria-hidden="true"
     class="contact-ghost-text pointer-events-none select-none absolute inset-0 flex items-center justify-center
            font-manrope font-black text-white leading-none tracking-tighter"
   >
-    ¿Hablamos?
+    {dictionary[defaultLang].general.talk}
   </span>
 
   <!-- Content: sits above the ghost text -->
@@ -40,15 +43,16 @@ const socials = [
 
     <!-- Headline -->
     <h2
+      data-i18n-contact="talk"
       class="font-manrope font-black tracking-tighter leading-[0.95] text-neutral-100
              text-[clamp(2.5rem,8vw,6rem)]"
     >
-      ¿Hablamos?
+      {dictionary[defaultLang].general.talk}
     </h2>
 
     <!-- Subtext -->
-    <p class="font-inter text-sm text-neutral-400 leading-relaxed -mt-2">
-      Si tienes alguna pregunta, no dudes en ponerte en contacto.
+    <p class="font-inter text-sm text-neutral-400 leading-relaxed -mt-2" data-i18n-contact="subtalk">
+      {dictionary[defaultLang].general.subtalk}
     </p>
 
     <!-- Email pill -->
@@ -82,9 +86,9 @@ const socials = [
           target="_blank"
           rel="noopener noreferrer"
           class="group flex flex-col items-start gap-3 p-5 rounded-2xl
-                 bg-[#1f2020] border border-white/[0.06]
+               bg-[#1f2020] border border-white/6
                  
-                 transition-all duration-300 hover:border-white/15 hover:bg-[#252626] min-w-[200px]"
+               transition-all duration-300 hover:border-white/15 hover:bg-[#252626] min-w-50"
           aria-label={`${s.name}: ${s.handle}`}
         >
           <!-- Icon -->
@@ -136,3 +140,54 @@ const socials = [
 
   </div>
 </section>
+
+<script>
+  import { LANG_STORAGE_KEY, translations } from "../i18n/translations";
+
+  const CONTACT_I18N = {
+    es: translations.es.general,
+    en: translations.en.general,
+  };
+
+  function initContactLanguage() {
+    const i18nNodes = Array.from(
+      document.querySelectorAll<HTMLElement>("[data-i18n-contact]"),
+    );
+    const i18nAriaNodes = Array.from(
+      document.querySelectorAll<HTMLElement>("[data-i18n-contact-aria-label]"),
+    );
+
+    function sanitizeLang(value: string | null): "es" | "en" {
+      return value === "en" ? "en" : "es";
+    }
+
+    function applyContactLanguage(lang: "es" | "en") {
+      const dictionary = CONTACT_I18N[lang];
+
+      i18nNodes.forEach((node) => {
+        const key = node.dataset.i18nContact as keyof typeof dictionary | undefined;
+        if (!key) return;
+        node.textContent = dictionary[key];
+      });
+
+      i18nAriaNodes.forEach((node) => {
+        const key = node.dataset.i18nContactAriaLabel as
+          | keyof typeof dictionary
+          | undefined;
+        if (!key) return;
+        node.setAttribute("aria-label", dictionary[key]);
+      });
+    }
+
+    const initialLang = sanitizeLang(localStorage.getItem(LANG_STORAGE_KEY));
+    applyContactLanguage(initialLang);
+
+    window.addEventListener("site-language-change", (event) => {
+      const customEvent = event as CustomEvent<{ lang?: string }>;
+      applyContactLanguage(sanitizeLang(customEvent.detail?.lang ?? null));
+    });
+  }
+
+  document.addEventListener("astro:page-load", initContactLanguage);
+  initContactLanguage();
+</script>

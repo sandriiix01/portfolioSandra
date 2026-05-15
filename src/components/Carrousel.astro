@@ -1,5 +1,6 @@
 ---
 import { sanityClient } from "../lib/sanity";
+import { DEFAULT_LANG, LANG_STORAGE_KEY, translations } from "../i18n/translations";
 
 type ProjectImage = {
   url?: string;
@@ -56,6 +57,9 @@ const sliderItems = projectImages.map((item) => ({
   titulo: item.titulo?.es ?? "Proyecto",
   href: item.slug?.current ? `/proyecto/${item.slug.current}` : "#",
 }));
+
+const defaultLang = DEFAULT_LANG;
+const carouselDictionary = translations;
 ---
 
 <link
@@ -74,9 +78,10 @@ const sliderItems = projectImages.map((item) => ({
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <div>
         <h2
+          data-i18n-carousel="ilustrations"
           class="text-white font-['Instrument_Serif'] text-3xl md:text-4xl leading-tight mb-12"
         >
-          Ilustraciones
+          {carouselDictionary[defaultLang].general.ilustrations}
         </h2>
         <article
           class="rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-6"
@@ -132,9 +137,10 @@ const sliderItems = projectImages.map((item) => ({
       </div>
       <div>
         <h2
+          data-i18n-carousel="photografies"
           class="text-white font-['Instrument_Serif'] text-3xl md:text-4xl leading-tight mb-12"
         >
-          Fotografías
+          {carouselDictionary[defaultLang].general.photografies}
         </h2>
         <article
           class="rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-6"
@@ -327,4 +333,44 @@ const sliderItems = projectImages.map((item) => ({
 
   document.addEventListener("astro:page-load", initCarousels);
   initCarousels();
+</script>
+
+<script>
+  import { LANG_STORAGE_KEY, translations } from "../i18n/translations";
+
+  const CAROUSEL_I18N = {
+    es: translations.es.general,
+    en: translations.en.general,
+  };
+
+  function initCarouselLanguage() {
+    const i18nNodes = Array.from(
+      document.querySelectorAll<HTMLElement>("[data-i18n-carousel]"),
+    );
+
+    function sanitizeLang(value: string | null): "es" | "en" {
+      return value === "en" ? "en" : "es";
+    }
+
+    function applyCarouselLanguage(lang: "es" | "en") {
+      const dictionary = CAROUSEL_I18N[lang];
+
+      i18nNodes.forEach((node) => {
+        const key = node.dataset.i18nCarousel as keyof typeof dictionary | undefined;
+        if (!key) return;
+        node.textContent = dictionary[key];
+      });
+    }
+
+    const initialLang = sanitizeLang(localStorage.getItem(LANG_STORAGE_KEY));
+    applyCarouselLanguage(initialLang);
+
+    window.addEventListener("site-language-change", (event) => {
+      const customEvent = event as CustomEvent<{ lang?: string }>;
+      applyCarouselLanguage(sanitizeLang(customEvent.detail?.lang ?? null));
+    });
+  }
+
+  document.addEventListener("astro:page-load", initCarouselLanguage);
+  initCarouselLanguage();
 </script>
