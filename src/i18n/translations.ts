@@ -36,6 +36,7 @@ export const translations = {
       programsLevelAria: "Programas y nivel de dominio",
       noPrograms: "Sin programas disponibles",
       noDescription: "Sin descripcion disponible.",
+      createdBy: "Creado por",
       talk: "¿Hablamos?",
       subtalk:
         "Si tienes algún proyecto, no dudes en contactarme. Estoy siempre abierto a nuevas oportunidades y colaboraciones.",
@@ -73,6 +74,7 @@ export const translations = {
       programsLevelAria: "Programs and proficiency level",
       noPrograms: "No programs available",
       noDescription: "No description available.",
+      createdBy: "Created by",
       talk: "Let's talk",
       subtalk:
         "If you have a project, feel free to contact me. I am always open to new opportunities and collaborations.",

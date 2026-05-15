@@ -1,14 +1,10 @@
 ---
 // Footer.astro
 // src/components/Footer.astro
+import { DEFAULT_LANG, LANG_STORAGE_KEY, translations } from "../i18n/translations";
 
 const year = new Date().getFullYear();
-
-const links = [
-  { label: "Privacy", href: "/privacy" },
-  { label: "Terms",   href: "/terms"   },
-  { label: "Cookies", href: "/cookies" },
-];
+const defaultLang = DEFAULT_LANG;
 ---
 
 <footer class="border-t border-white/[0.1] w-full mx-auto max-w-[1800px]">
@@ -17,25 +13,65 @@ const links = [
 
     <!-- Copyright -->
     <p class="font-inter text-xs text-neutral-600 tracking-wide">
-      © {year} Sandra Guillén
+      © Sandra Guillén {year} 
     </p>
 
-    <!-- Legal links -->
+    <!-- Credit -->
     <nav aria-label="Legal">
-      <ul class="flex items-center gap-6 list-none m-0 p-0">
-        {links.map((l) => (
-          <li>
-            <a
-              href={l.href}
-              class="font-inter text-xs text-neutral-600 hover:text-neutral-400
-                     transition-colors duration-200 tracking-wide"
-            >
-              {l.label}
-            </a>
-          </li>
-        ))}
-      </ul>
+      <p class="font-inter text-xs text-neutral-600 tracking-wide">
+        <span data-i18n-footer="createdBy">
+          {translations[defaultLang].general.createdBy}
+        </span>{" "}
+        <a
+          href="https://www.linkedin.com/in/javierrocap"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="underline underline-offset-2 decoration-neutral-500 hover:text-neutral-400 transition-colors duration-200"
+        >
+          Javierrocadev
+        </a>
+      </p>
     </nav>
 
   </div>
 </footer>
+
+<script>
+  import { LANG_STORAGE_KEY, translations } from "../i18n/translations";
+
+  const FOOTER_I18N = {
+    es: translations.es.general,
+    en: translations.en.general,
+  };
+
+  function initFooterLanguage() {
+    const i18nNodes = Array.from(
+      document.querySelectorAll<HTMLElement>("[data-i18n-footer]"),
+    );
+
+    function sanitizeLang(value: string | null): "es" | "en" {
+      return value === "en" ? "en" : "es";
+    }
+
+    function applyFooterLanguage(lang: "es" | "en") {
+      const dictionary = FOOTER_I18N[lang];
+
+      i18nNodes.forEach((node) => {
+        const key = node.dataset.i18nFooter as keyof typeof dictionary | undefined;
+        if (!key) return;
+        node.textContent = dictionary[key];
+      });
+    }
+
+    const initialLang = sanitizeLang(localStorage.getItem(LANG_STORAGE_KEY));
+    applyFooterLanguage(initialLang);
+
+    window.addEventListener("site-language-change", (event) => {
+      const customEvent = event as CustomEvent<{ lang?: string }>;
+      applyFooterLanguage(sanitizeLang(customEvent.detail?.lang ?? null));
+    });
+  }
+
+  document.addEventListener("astro:page-load", initFooterLanguage);
+  initFooterLanguage();
+</script>
