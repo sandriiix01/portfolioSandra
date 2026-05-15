@@ -136,31 +136,40 @@ const MAX_STARS = 5;
         <div class="about-cv-actions">
           {
             cvUrl ? (
-              <a
-                href={cvUrl}
+             
+                  <a
+      href={cvUrl}
                 download={cvFilename}
                 target="_blank"
                 rel="noopener noreferrer"
-                class="btn-ghost about-cv-btn"
-                data-i18n-about="downloadCV"
-              >
-                {aboutDictionary[defaultLang].general.downloadCV}
-              </a>
+      class="group flex items-center gap-3 px-6 py-3.5 rounded-full
+             bg-[#1f2020] border border-white/10
+             font-inter text-sm text-neutral-300
+             transition-all duration-300 hover:border-white/25 hover:bg-[#252626] hover:text-white"
+       data-i18n-about="downloadCV"
+    >
+       {aboutDictionary[defaultLang].general.downloadCV}
+   
+    </a>
             ) : null
           }
 
           {
             cvEnUrl ? (
               <a
-                href={cvEnUrl}
+     href={cvEnUrl}
                 download={cvEnFilename}
                 target="_blank"
                 rel="noopener noreferrer"
-                class="btn-ghost about-cv-btn"
-                data-i18n-about="downloadCVEn"
-              >
-                {aboutDictionary[defaultLang].general.downloadCVEn}
-              </a>
+      class="group flex items-center gap-3 px-6 py-3.5 rounded-full
+             bg-[#1f2020] border border-white/10
+             font-inter text-sm text-neutral-300
+             transition-all duration-300 hover:border-white/25 hover:bg-[#252626] hover:text-white"
+       data-i18n-about="downloadCVEn"
+    >
+       {aboutDictionary[defaultLang].general.downloadCVEn}
+   
+    </a>
             ) : null
           }
         </div>
