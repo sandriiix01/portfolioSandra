@@ -1,0 +1,151 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import "../../styles/global.css";
+import { sanityClient } from '../../lib/sanity'
+import Footer from '../../components/Footer.astro';
+import { DEFAULT_LANG } from '../../i18n/translations';
+
+type SanityImage = {
+  alt?: string
+  asset?: {
+    url?: string
+  }
+}
+
+type FotografiasDoc = {
+  _id: string
+  titulo?: string
+  tituloEn?: string
+  imagenes?: SanityImage[]
+}
+
+const defaultLang = DEFAULT_LANG;
+
+const fotografiasDocs = await sanityClient.fetch<FotografiasDoc[]>(`
+*[_type == "fotografias"] | order(_createdAt desc) {
+  _id,
+  titulo,
+  tituloEn,
+  imagenes[]{
+    alt,
+    asset->{
+      url
+    }
+  }
+}
+`);
+
+const fotografiasConImagenes = fotografiasDocs
+  .map((doc) => ({
+    ...doc,
+    imagenes: (doc.imagenes ?? []).filter((img) => Boolean(img?.asset?.url)),
+  }))
+  .filter((doc) => (doc.imagenes?.length ?? 0) > 0);
+---
+
+<Layout>
+      <section
+
+    aria-label="Sección principal"
+      id="proyectos"
+        style="margin: 0 auto; width: 100%; max-width: 1800px; "
+  class="px-6 sm:px-12 lg:px-24 pb-20"
+  >
+
+  <div class="pt-10 pb-14">
+    <h1
+      class="text-white font-['Instrument_Serif'] text-5xl md:text-7xl leading-tight"
+      data-i18n-gallery-title
+      data-es="Fotografías"
+      data-en="Photographies"
+    >
+      {defaultLang === 'en' ? 'Photographies' : 'Fotografías'}
+    </h1>
+  </div>
+
+  {fotografiasConImagenes.length > 0 ? (
+    <div class="flex flex-col gap-16">
+      {fotografiasConImagenes.map((doc) => (
+        <article class="flex flex-col gap-6" aria-label={doc.titulo ?? 'Galeria de fotografias'}>
+          {(doc.titulo || doc.tituloEn) && (
+            <h2
+              class="text-neutral-200 text-2xl md:text-3xl tracking-tight"
+              data-i18n-doc-title
+              data-es={doc.titulo ?? doc.tituloEn ?? ''}
+              data-en={doc.tituloEn ?? doc.titulo ?? ''}
+            >
+              {defaultLang === 'en' ? (doc.tituloEn ?? doc.titulo) : (doc.titulo ?? doc.tituloEn)}
+            </h2>
+          )}
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {(doc.imagenes ?? []).map((image, index) => (
+              <div class="rounded-2xl overflow-hidden bg-[#191a1a] aspect-square">
+                <img
+                  src={image.asset?.url}
+                  alt={image.alt ?? `${doc.titulo ?? 'Fotografia'} ${index + 1}`}
+                  class="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </div>
+            ))}
+          </div>
+        </article>
+      ))}
+    </div>
+  ) : (
+    <p
+      class="text-neutral-500 text-base"
+      data-i18n-gallery-empty
+      data-es="No hay fotografías disponibles todavía."
+      data-en="No photographs are available yet."
+    >
+      {defaultLang === 'en' ? 'No photographs are available yet.' : 'No hay fotografías disponibles todavía.'}
+    </p>
+  )}
+
+</section>
+<Footer/>
+</Layout>
+
+<script>
+  import { LANG_STORAGE_KEY } from '../../i18n/translations';
+
+  function initGalleryLanguage() {
+    const titleNodes = Array.from(document.querySelectorAll<HTMLElement>('[data-i18n-gallery-title]'));
+    const emptyNodes = Array.from(document.querySelectorAll<HTMLElement>('[data-i18n-gallery-empty]'));
+    const docTitleNodes = Array.from(document.querySelectorAll<HTMLElement>('[data-i18n-doc-title]'));
+
+    function sanitizeLang(value: string | null): 'es' | 'en' {
+      return value === 'en' ? 'en' : 'es';
+    }
+
+    function applyGalleryLanguage(lang: 'es' | 'en') {
+      titleNodes.forEach((node) => {
+        const text = node.getAttribute(`data-${lang}`)?.trim();
+        if (text) node.textContent = text;
+      });
+
+      emptyNodes.forEach((node) => {
+        const text = node.getAttribute(`data-${lang}`)?.trim();
+        if (text) node.textContent = text;
+      });
+
+      docTitleNodes.forEach((node) => {
+        const text = node.getAttribute(`data-${lang}`)?.trim();
+        if (text) node.textContent = text;
+      });
+    }
+
+    const initialLang = sanitizeLang(localStorage.getItem(LANG_STORAGE_KEY));
+    applyGalleryLanguage(initialLang);
+
+    window.addEventListener('site-language-change', (event) => {
+      const customEvent = event as CustomEvent<{ lang?: string }>;
+      applyGalleryLanguage(sanitizeLang(customEvent.detail?.lang ?? null));
+    });
+  }
+
+  document.addEventListener('astro:page-load', initGalleryLanguage);
+  initGalleryLanguage();
+</script>

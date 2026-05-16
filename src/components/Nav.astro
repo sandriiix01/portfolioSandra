@@ -4,18 +4,23 @@
 
 const pathname = Astro.url.pathname;
 const isHome = pathname === "/";
+const isIlustrations = pathname === "/proyecto/illustrations";
+const isPhotografies = pathname === "/proyecto/photograph";
 const isProjects =
-  pathname === "/myproyects" || pathname.startsWith("/proyecto/");
+  pathname === "/myproyects" ||
+  (pathname.startsWith("/proyecto/") && !isIlustrations && !isPhotografies);
 
 import { DEFAULT_LANG, translations } from "../i18n/translations";
 const navDictionary = translations;
 const defaultLang = DEFAULT_LANG;
 
-type NavLinkKey = "home" | "projects";
+type NavLinkKey = "home" | "projects" | "illustrations" | "photograph";
 
 const navLinks: Array<{ key: NavLinkKey; href: string; active: boolean }> = [
   { key: "home", href: "/", active: isHome },
   { key: "projects", href: "/myproyects", active: isProjects },
+  { key: "ilustrations", href: "/proyecto/illustrations", active: isIlustrations },
+  { key: "photografies", href: "/proyecto/photograph", active: isPhotografies },
   // { label: "Sobre mí", href: "/#sobre-mi", active: false },
   // { label: "Contacto", href: "/#contacto", active: false },
 ];
@@ -29,7 +34,7 @@ const navLinks: Array<{ key: NavLinkKey; href: string; active: boolean }> = [
   >
     <!-- Logo -->
     <a href="/" class="nav-logo" aria-label="Ir al inicio">
-      Sandra Guillén<span class="nav-logo-dot">.</span>
+      S.G<span class="nav-logo-dot">.</span>
     </a>
 
     <!-- Links (desktop) -->

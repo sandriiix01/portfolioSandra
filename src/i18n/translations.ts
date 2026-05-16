@@ -9,6 +9,8 @@ export const translations = {
     nav: {
       home: "Inicio",
       projects: "Proyectos",
+      ilustrations: "Ilustraciones",
+      photografies: "Fotografías",
       contact: "¿Hablamos?",
       openMenu: "Abrir menú",
       closeMenu: "Cerrar menú",
@@ -48,6 +50,8 @@ export const translations = {
     nav: {
       home: "Home",
       projects: "Projects",
+      ilustrations: "Illustrations",
+      photografies: "Photographies",
       contact: "Let's talk",
       openMenu: "Open menu",
       closeMenu: "Close menu",

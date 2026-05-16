@@ -509,6 +509,11 @@
     display: flex;
   }
 }
+@media (max-width: 900px) {
+  .nav-links {
+    margin-left: 0;
+  }
+}
 
 
 

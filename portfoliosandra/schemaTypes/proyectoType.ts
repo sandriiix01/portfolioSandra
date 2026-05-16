@@ -139,7 +139,8 @@ export const proyectoType = defineType({
     defineField({
       name: 'youtubeLinks',
       title: 'Enlaces de YouTube',
-      description: 'Opcional: puedes añadir 0, 1 o varios enlaces de YouTube.',
+      description:
+        'Opcional: puedes añadir 0, 1 o varios enlaces de YouTube. Le das a compartir en YouTube, le das a insertar, te muestra el iframe y de ahí SOLO copias el enlace que esta dentro de src entre comillas.',
       type: 'array',
       of: [
         defineField({
