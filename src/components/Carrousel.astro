@@ -10,6 +10,7 @@ type GalleryImage = {
 };
 
 type GalleryRaw = {
+  _id: string;
   titulo?: string;
   tituloEn?: string;
   imagenes?: GalleryImage[];
@@ -26,6 +27,7 @@ type SliderItem = {
 const [illustrationsRaw, photographsRaw] = await Promise.all([
   sanityClient.fetch<GalleryRaw[]>(`
     *[_type == "ilustraciones"]{
+      _id,
       titulo,
       tituloEn,
       imagenes[]{
@@ -38,6 +40,7 @@ const [illustrationsRaw, photographsRaw] = await Promise.all([
   `),
   sanityClient.fetch<GalleryRaw[]>(`
     *[_type == "fotografias"]{
+      _id,
       titulo,
       tituloEn,
       imagenes[]{
@@ -62,9 +65,22 @@ const shuffleItems = <T,>(items: T[]): T[] => {
   return shuffled;
 };
 
+const createSectionId = (title: string, id: string): string => {
+  const normalizedTitle = title
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
+  const safeTitle = normalizedTitle || "seccion";
+  const safeIdSuffix = id.slice(-6);
+  return `${safeTitle}-${safeIdSuffix}`;
+};
+
 const mapGalleryToSliderItems = (
   galleries: GalleryRaw[],
-  href: string,
+  hrefBase: string,
 ): SliderItem[] => {
   const groupedItems = galleries.flatMap((gallery) => {
     const validImages = (gallery.imagenes ?? []).filter((image) =>
@@ -74,13 +90,14 @@ const mapGalleryToSliderItems = (
     const randomImages = shuffleItems(validImages).slice(0, 3);
     const tituloEs = gallery.titulo ?? "Sin titulo";
     const tituloEn = gallery.tituloEn ?? gallery.titulo ?? "Untitled";
+    const sectionId = createSectionId(gallery.titulo ?? tituloEn, gallery._id);
 
     return randomImages.map((image) => ({
       url: image.asset?.url ?? "",
       alt: image.alt ?? tituloEs,
       tituloEs,
       tituloEn,
-      href,
+      href: `${hrefBase}#${sectionId}`,
     }));
   });
 
@@ -118,7 +135,7 @@ const carouselDictionary = translations;
       <div>
         <h2
           data-i18n-carousel="ilustrations"
-          class="text-white font-['Instrument_Serif'] text-3xl md:text-4xl leading-tight mb-12"
+          class="text-white text-3xl md:text-4xl leading-tight mb-12"
         >
           {carouselDictionary[defaultLang].general.ilustrations}
         </h2>
@@ -129,7 +146,7 @@ const carouselDictionary = translations;
             <button
               id="arrow-left-1"
               aria-label="Anterior"
-              class="arrow text-white cursor-pointer border border-white/20 rounded-full w-10 h-10 flex items-center justify-center"
+              class="arrow text-white cursor-pointer border border-white/20 rounded-full w-10 h-10 flex items-center justify-center hover:border-white/35 hover:bg-white/8 transition-colors duration-200"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -147,7 +164,7 @@ const carouselDictionary = translations;
             <button
               id="arrow-right-1"
               aria-label="Siguiente"
-              class="arrow text-white cursor-pointer border border-white/20 rounded-full w-10 h-10 flex items-center justify-center"
+              class="arrow text-white cursor-pointer border border-white/20 rounded-full w-10 h-10 flex items-center justify-center hover:border-white/35 hover:bg-white/8 transition-colors duration-200"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -167,7 +184,7 @@ const carouselDictionary = translations;
           <div class="overflow-hidden mx-auto">
             <div
               id="keen-slider-1"
-              class="keen-slider min-h-45 flex items-center"
+              class="keen-slider min-h-160 flex items-center"
             >
               <!-- Slides inyectados por JS -->
             </div>
@@ -177,7 +194,7 @@ const carouselDictionary = translations;
       <div>
         <h2
           data-i18n-carousel="photografies"
-          class="text-white font-['Instrument_Serif'] text-3xl md:text-4xl leading-tight mb-12"
+          class="text-white text-3xl md:text-4xl leading-tight mb-12"
         >
           {carouselDictionary[defaultLang].general.photografies}
         </h2>
@@ -188,7 +205,7 @@ const carouselDictionary = translations;
             <button
               id="arrow-left-2"
               aria-label="Anterior"
-              class="arrow text-white cursor-pointer border border-white/20 rounded-full w-10 h-10 flex items-center justify-center"
+              class="arrow text-white cursor-pointer border border-white/20 rounded-full w-10 h-10 flex items-center justify-center hover:border-white/35 hover:bg-white/8 transition-colors duration-200"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -206,7 +223,7 @@ const carouselDictionary = translations;
             <button
               id="arrow-right-2"
               aria-label="Siguiente"
-              class="arrow text-white cursor-pointer border border-white/20 rounded-full w-10 h-10 flex items-center justify-center"
+              class="arrow text-white cursor-pointer border border-white/20 rounded-full w-10 h-10 flex items-center justify-center hover:border-white/35 hover:bg-white/8 transition-colors duration-200"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -226,7 +243,7 @@ const carouselDictionary = translations;
           <div class="overflow-hidden mx-auto">
             <div
               id="keen-slider-2"
-              class="keen-slider min-h-45 flex items-center"
+              class="keen-slider min-h-160 flex items-center"
             >
               <!-- Slides inyectados por JS -->
             </div>
@@ -266,12 +283,19 @@ const carouselDictionary = translations;
          
           class="min-h-full overflow-hidden group block  rounded-xl border border-white/10 bg-black/20"
         >
-          <img
-            src="${item.url}"
-            alt="${item.alt}"
-            class="w-fit h-fit object-cover overflow-visible transition-transform duration-300 group-hover:scale-[1.03]"
-            loading="lazy"
-          />
+          <div class="relative overflow-hidden">
+            <img
+              src="${item.url}"
+              alt="${item.alt}"
+              class="w-full h-fit object-cover overflow-visible transition-transform duration-300 group-hover:scale-[1.03]"
+              loading="lazy"
+            />
+            <div class="absolute inset-0 flex items-center justify-center bg-black/0 opacity-0 transition-all duration-300 group-hover:bg-black/35 group-hover:opacity-100">
+              <span class="text-sm md:text-base font-bold text-white tracking-wide">
+                ${lang === "en" ? `See ${item.tituloEn}` : `Ver ${item.tituloEs}`}
+              </span>
+            </div>
+          </div>
           <div class="border-t border-white/10 px-3 py-2 text-sm text-white/80">
             ${lang === "en" ? item.tituloEn : item.tituloEs}
           </div>
@@ -331,12 +355,12 @@ const carouselDictionary = translations;
         loop: true,
         drag: true,
         slides: {
-          perView: 1.2,
+          perView: 1,
           spacing: 12,
         },
         breakpoints: {
           "(min-width: 768px)": {
-            slides: { perView: 1.6, spacing: 14 },
+            slides: { perView: 1, spacing: 14 },
           },
           "(min-width: 1200px)": {
             slides: { perView: 2, spacing: 16 },
