@@ -1,6 +1,12 @@
 @import "tailwindcss";
 
-@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Inter:wght@400;500&display=swap');
+@font-face {
+  font-family: 'Bricolage Grotesque';
+  src: url('/fonts/BricolageGrotesque-VariableFont_opsz,wdth,wght.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
 
 /* ── CSS Custom Properties ── */
 :root {
@@ -45,7 +51,7 @@
   body {
     background-color: var(--surface);
     color: var(--color-primary);
-    font-family: 'Inter', sans-serif;
+    font-family: 'Bricolage Grotesque', sans-serif;
     font-size: 1rem;
     line-height: 1.6;
   }
@@ -65,16 +71,16 @@
 /* ── Typography Utilities ── */
 @layer utilities {
   .font-manrope {
-    font-family: 'Manrope', sans-serif;
+    
   }
  
   .font-inter {
-    font-family: 'Inter', sans-serif;
+    
   }
  
   /* Display headline — hero statements */
   .text-display-lg {
-    font-family: 'Manrope', sans-serif;
+  
     font-size: clamp(2.5rem, 7vw, 3.5rem);
     font-weight: 700;
     letter-spacing: -0.03em;
@@ -84,7 +90,7 @@
  
   /* Section titles */
   .text-headline-md {
-    font-family: 'Manrope', sans-serif;
+  
     font-size: 1.75rem;
     font-weight: 600;
     letter-spacing: -0.02em;
@@ -93,7 +99,7 @@
  
   /* Body copy */
   .text-body-lg {
-    font-family: 'Inter', sans-serif;
+    
     font-size: 1rem;
     line-height: 1.75;
     color: var(--color-secondary);
@@ -101,7 +107,7 @@
  
   /* Labels / pill tags */
   .text-label-md {
-    font-family: 'Inter', sans-serif;
+    
     font-size: 0.75rem;
     font-weight: 500;
     text-transform: uppercase;
@@ -129,7 +135,7 @@
   
     background-color: #e5e5e5;
     color: var(--color-on-dark);
-    font-family: 'Manrope', sans-serif;
+    
     font-size: 0.875rem;
     font-weight: 600;
     letter-spacing: 0.01em;
@@ -152,7 +158,7 @@
     border-radius: 9999px;
     background-color: transparent;
     color: var(--color-primary);
-    font-family: 'Manrope', sans-serif;
+    
     font-size: 0.875rem;
     font-weight: 500;
     border: 1px solid var(--border-ghost);
@@ -272,7 +278,7 @@
 
 /* ── Logo ── */
 .nav-logo {
-  font-family: 'Manrope', sans-serif;
+  
   font-size: 1rem;
   font-weight: 700;
   color: var(--color-primary);
@@ -297,7 +303,7 @@
 }
 
 .nav-link {
-  font-family: 'Inter', sans-serif;
+  
   font-size: 0.875rem;
   font-weight: 400;
   color: var(--color-secondary);
@@ -453,7 +459,7 @@
 }
 
 .mobile-menu__link {
-  font-family: 'Manrope', sans-serif;
+  
   font-size: clamp(2rem, 10vw, 3rem);
   font-weight: 700;
   letter-spacing: -0.03em;
@@ -541,7 +547,7 @@
 
 /* ── Display headline ── */
 .about-headline {
-  font-family: 'Manrope', sans-serif;
+  
   font-size: clamp(2rem, 5.5vw, 3.75rem);
   font-weight: 700;
   letter-spacing: -0.03em;
@@ -553,7 +559,6 @@
 
 /* serif italic keyword — reuses global .serif-accent */
 .about-headline .serif-accent {
-  font-family: 'Playfair Display', serif;
   font-style: italic;
   font-weight: 800;
   color: var(--color-secondary);
@@ -569,7 +574,7 @@
 
 /* ── LEFT: Bio ── */
 .about-bio__title {
-  font-family: 'Manrope', sans-serif;
+  
   font-size: clamp(2rem, 4vw, 3rem);
   font-weight: 700;
   letter-spacing: -0.03em;
@@ -586,7 +591,7 @@
 }
 
 .about-bio__text p {
-  font-family: 'Inter', sans-serif;
+  
   font-size: 0.9375rem;
   line-height: 1.75;
   color: var(--color-secondary);
@@ -597,7 +602,7 @@
   display: inline-flex;
   align-items: center;
   padding: 0.6rem 1.5rem !important;
-  font-family: 'Inter', sans-serif;
+  
   font-size: 0.6875rem !important;
   font-weight: 500;
   text-transform: uppercase;
@@ -639,7 +644,7 @@
 
 /* ── RIGHT: Skills ── */
 .about-skills__title {
-  font-family: 'Manrope', sans-serif;
+  
   font-size: clamp(2rem, 4vw, 3rem);
   font-weight: 700;
   letter-spacing: -0.03em;
@@ -671,7 +676,7 @@
 }
 
 .skills-row__name {
-  font-family: 'Inter', sans-serif;
+  
   font-size: 0.875rem;
   color: var(--color-secondary);
   flex-shrink: 0;

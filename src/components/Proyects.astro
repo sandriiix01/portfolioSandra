@@ -43,16 +43,21 @@ const defaultLang = DEFAULT_LANG;
 
 const pickLocalized = (value: LocalizedText | undefined, lang: "es" | "en") => {
   if (!value) return "";
-  return lang === "en" ? value.en ?? value.es ?? "" : value.es ?? value.en ?? "";
+  return lang === "en"
+    ? (value.en ?? value.es ?? "")
+    : (value.es ?? value.en ?? "");
 };
 
-const getLocalizedTags = (tags: (ProjectTag | null)[] | undefined, lang: "es" | "en") =>
+const getLocalizedTags = (
+  tags: (ProjectTag | null)[] | undefined,
+  lang: "es" | "en",
+) =>
   (tags ?? [])
     .map((tag) => {
       if (!tag?.label) return "";
       return lang === "en"
-        ? tag.label.en ?? tag.label.es ?? ""
-        : tag.label.es ?? tag.label.en ?? "";
+        ? (tag.label.en ?? tag.label.es ?? "")
+        : (tag.label.es ?? tag.label.en ?? "");
     })
     .filter(Boolean);
 
@@ -80,21 +85,20 @@ const proyects = await sanityClient.fetch<SanityProject[]>(`
 `);
 
 const projectImages: ProjectImage[] = proyects
-  .flatMap(
-    (project) =>
-      (project.imagencover ? [project.imagencover] : []).map((image) => ({
-        url: image?.asset?.url,
-        alt: image?.alt,
-        titulo: pickLocalized(project.titulo, defaultLang),
-        tituloEs: pickLocalized(project.titulo, "es"),
-        tituloEn: pickLocalized(project.titulo, "en"),
-        descripcion: pickLocalized(project.descripcioncorta, defaultLang),
-        tagsEs: getLocalizedTags(project.tags, "es"),
-        tagsEn: getLocalizedTags(project.tags, "en"),
-        tags: getLocalizedTags(project.tags, defaultLang),
-        links: getSafeLinks(project.links),
-        slug: project.slug,
-      })),
+  .flatMap((project) =>
+    (project.imagencover ? [project.imagencover] : []).map((image) => ({
+      url: image?.asset?.url,
+      alt: image?.alt,
+      titulo: pickLocalized(project.titulo, defaultLang),
+      tituloEs: pickLocalized(project.titulo, "es"),
+      tituloEn: pickLocalized(project.titulo, "en"),
+      descripcion: pickLocalized(project.descripcioncorta, defaultLang),
+      tagsEs: getLocalizedTags(project.tags, "es"),
+      tagsEn: getLocalizedTags(project.tags, "en"),
+      tags: getLocalizedTags(project.tags, defaultLang),
+      links: getSafeLinks(project.links),
+      slug: project.slug,
+    })),
   )
   .filter((image: ProjectImage) => Boolean(image.url));
 
@@ -128,15 +132,12 @@ const projectsDictionary = translations;
   <section class="w-full pt-10 pb-20 flex flex-col gap-16">
     <!-- Header -->
     <div class="flex flex-col gap-4">
-      <span
-        data-i18n-proyects="selectedWorks"
-        class="w-fit bg-white/5 border border-white/10 rounded-full px-4 py-1 text-white/60 text-xs uppercase tracking-[3.6px]"
-      >
+      <span data-i18n-proyects="selectedWorks" class="w-fit chip">
         {projectsDictionary[defaultLang].general.selectedWorks}
       </span>
       <h2
         data-i18n-proyects="featuredProjects"
-        class="text-white font-['Instrument_Serif'] text-6xl md:text-8xl leading-tight"
+        class="text-white text-6xl md:text-8xl leading-tight"
       >
         {projectsDictionary[defaultLang].general.featuredProjects}
       </h2>
@@ -162,7 +163,9 @@ const projectsDictionary = translations;
                     alt={
                       slot.image.alt ??
                       slot.image.titulo ??
-                      (defaultLang === "en" ? "Project image" : "Imagen de proyecto")
+                      (defaultLang === "en"
+                        ? "Project image"
+                        : "Imagen de proyecto")
                     }
                     class="w-full h-full object-cover min-h-64"
                   />
@@ -175,13 +178,15 @@ const projectsDictionary = translations;
                       data-es={JSON.stringify(slot.image.tagsEs ?? [])}
                       data-en={JSON.stringify(slot.image.tagsEn ?? [])}
                     >
-                      {(slot.image.tags?.slice(0, 3) ?? [defaultLang === "en" ? "Project" : "Proyecto"]).map(
-                        (tag: string) => (
-                          <span class="text-white/60 text-[11px] uppercase tracking-[2.5px]">
-                            {tag}
-                          </span>
-                        ),
-                      )}
+                      {(
+                        slot.image.tags?.slice(0, 3) ?? [
+                          defaultLang === "en" ? "Project" : "Proyecto",
+                        ]
+                      ).map((tag: string) => (
+                        <span class="text-white/60 text-[11px] uppercase tracking-[2.5px]">
+                          {tag}
+                        </span>
+                      ))}
                     </div>
                     <span class="text-white text-sm">2026</span>
                   </div>
@@ -194,12 +199,13 @@ const projectsDictionary = translations;
           </a>
         )} */}
                   <h3
-                    class="absolute bottom-6 left-6 text-white font-['Instrument_Serif'] text-4xl font-normal"
+                    class="absolute bottom-6 left-6 text-white  text-4xl font-normal"
                     data-i18n-project-title
                     data-es={slot.image.tituloEs ?? ""}
                     data-en={slot.image.tituloEn ?? ""}
                   >
-                    {slot.image.titulo ?? (defaultLang === "en" ? "Project" : "Proyecto")}
+                    {slot.image.titulo ??
+                      (defaultLang === "en" ? "Project" : "Proyecto")}
                   </h3>
                 </a>
               )}
@@ -217,7 +223,7 @@ const projectsDictionary = translations;
             >
               {slot.isExplore && (
                 // <div class="h-full w-full flex flex-col items-start justify-between rounded-2xl border border-white/10 p-8">
-                //   <h3 class="text-white font-['Instrument_Serif'] text-4xl font-normal">
+                //   <h3 class="text-white  text-4xl font-normal">
                 //     Explorar
                 //   </h3>
                 //   <a
@@ -252,14 +258,12 @@ const projectsDictionary = translations;
                   <div class="bg-transparent group-hover:scale-150 top-24 right-12 absolute shadow-white/10 shadow-inner rounded-full transition-all ease-in-out group-hover:duration-1000 duration-1000 w-4 h-4" />
                   <div class="w-full h-full shadow-xl shadow-neutral-900 p-6  opacity-80 group-hover:opacity-100 transition-all duration-500 rounded-xl flex-col gap-2 flex justify-start">
                     <h3
-                      class="text-white font-['Instrument_Serif'] text-4xl font-normal mb-4"
+                      class="text-white  text-4xl font-normal mb-4"
                       data-i18n-proyects="exploreMore"
                     >
                       {projectsDictionary[defaultLang].general.exploreMore}
                     </h3>
-                    <span
-                      class="inline-flex items-center gap-2 px-8 py-3 rounded-full bg-neutral-100 text-black font-manrope font-semibold text-sm transition-all duration-300 group-hover:bg-white group-hover:-translate-y-px w-fit"
-                    >
+                    <span class="inline-flex items-center gap-2 px-8 py-3 rounded-full bg-neutral-100 text-black font-manrope font-semibold text-sm transition-all duration-300 group-hover:bg-white group-hover:-translate-y-px w-fit">
                       Ver todos
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -288,7 +292,9 @@ const projectsDictionary = translations;
                     alt={
                       slot.image.alt ??
                       slot.image.titulo ??
-                      (defaultLang === "en" ? "Project image" : "Imagen de proyecto")
+                      (defaultLang === "en"
+                        ? "Project image"
+                        : "Imagen de proyecto")
                     }
                     class="w-full h-full object-cover min-h-64"
                   />
@@ -301,13 +307,15 @@ const projectsDictionary = translations;
                       data-es={JSON.stringify(slot.image.tagsEs ?? [])}
                       data-en={JSON.stringify(slot.image.tagsEn ?? [])}
                     >
-                      {(slot.image.tags?.slice(0, 3) ?? [defaultLang === "en" ? "Project" : "Proyecto"]).map(
-                        (tag: string) => (
-                          <span class="text-white/60 text-[11px] uppercase tracking-[2.5px]">
-                            {tag}
-                          </span>
-                        ),
-                      )}
+                      {(
+                        slot.image.tags?.slice(0, 3) ?? [
+                          defaultLang === "en" ? "Project" : "Proyecto",
+                        ]
+                      ).map((tag: string) => (
+                        <span class="text-white/60 text-[11px] uppercase tracking-[2.5px]">
+                          {tag}
+                        </span>
+                      ))}
                     </div>
                     <span class="text-white text-sm">2026</span>
                   </div>
@@ -320,12 +328,13 @@ const projectsDictionary = translations;
           </a>
         )} */}
                   <h3
-                    class="absolute bottom-6 left-6 text-white font-['Instrument_Serif'] text-4xl font-normal"
+                    class="absolute bottom-6 left-6 text-white  text-4xl font-normal"
                     data-i18n-project-title
                     data-es={slot.image.tituloEs ?? ""}
                     data-en={slot.image.tituloEn ?? ""}
                   >
-                    {slot.image.titulo ?? (defaultLang === "en" ? "Project" : "Proyecto")}
+                    {slot.image.titulo ??
+                      (defaultLang === "en" ? "Project" : "Proyecto")}
                   </h3>
                 </a>
               )}
@@ -366,7 +375,9 @@ const projectsDictionary = translations;
       try {
         const parsed = JSON.parse(raw);
         if (!Array.isArray(parsed)) return [];
-        return parsed.filter((item): item is string => typeof item === "string");
+        return parsed.filter(
+          (item): item is string => typeof item === "string",
+        );
       } catch {
         return [];
       }
@@ -376,24 +387,31 @@ const projectsDictionary = translations;
       const dictionary = PROYECTS_I18N[lang];
 
       i18nNodes.forEach((node) => {
-        const key = node.dataset.i18nProyects as keyof typeof dictionary | undefined;
+        const key = node.dataset.i18nProyects as
+          | keyof typeof dictionary
+          | undefined;
         if (!key) return;
         node.textContent = dictionary[key];
       });
 
       projectTitleNodes.forEach((node) => {
         const localizedTitle = node.getAttribute(`data-${lang}`)?.trim();
-        node.textContent = localizedTitle || (lang === "en" ? "Project" : "Proyecto");
+        node.textContent =
+          localizedTitle || (lang === "en" ? "Project" : "Proyecto");
       });
 
       projectTagsNodes.forEach((node) => {
         const localizedTags = parseLocalizedList(node, lang).slice(0, 3);
-        const tags = localizedTags.length > 0 ? localizedTags : [lang === "en" ? "Project" : "Proyecto"];
+        const tags =
+          localizedTags.length > 0
+            ? localizedTags
+            : [lang === "en" ? "Project" : "Proyecto"];
 
         node.innerHTML = "";
         tags.forEach((tag) => {
           const tagNode = document.createElement("span");
-          tagNode.className = "text-white/60 text-[11px] uppercase tracking-[2.5px]";
+          tagNode.className =
+            "text-white/60 text-[11px] uppercase tracking-[2.5px]";
           tagNode.textContent = tag;
           node.appendChild(tagNode);
         });
