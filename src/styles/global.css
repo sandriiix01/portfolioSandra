@@ -66,6 +66,9 @@
     background-color: rgba(198, 198, 199, 0.15);
     color: #ffffff;
   }
+  h1,h2,h3,h4{
+    letter-spacing: -0.03em;
+  }
 }
  
 /* ── Typography Utilities ── */
