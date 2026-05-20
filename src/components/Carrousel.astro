@@ -182,10 +182,7 @@ const carouselDictionary = translations;
           </div>
 
           <div class="overflow-hidden mx-auto">
-            <div
-              id="keen-slider-1"
-              class="keen-slider max-h-120 flex items-center"
-            >
+            <div id="keen-slider-1" class="keen-slider h-120 max-h-120">
               <!-- Slides inyectados por JS -->
             </div>
           </div>
@@ -241,10 +238,7 @@ const carouselDictionary = translations;
           </div>
 
           <div class="overflow-hidden mx-auto">
-            <div
-              id="keen-slider-2"
-              class="keen-slider max-h-120 flex items-center"
-            >
+            <div id="keen-slider-2" class="keen-slider h-120 max-h-120">
               <!-- Slides inyectados por JS -->
             </div>
           </div>
@@ -277,17 +271,17 @@ const carouselDictionary = translations;
     items
       .map(
         (item) => `
-      <div class="keen-slider__slide h-full px-2 sm:px-3 overflow-visible">
+      <div class="keen-slider__slide h-full px-2 sm:px-3 overflow-visible flex">
         <a
           href="${item.href || "#"}"
          
-          class="min-h-full overflow-hidden group block  rounded-xl border border-white/10 bg-black/20"
+          class="h-full w-full overflow-hidden group block rounded-xl border border-white/10 bg-black/20 flex flex-col"
         >
-          <div class="relative overflow-hidden">
+          <div class="relative overflow-hidden flex-1 min-h-0 flex items-center justify-center bg-black/25">
             <img
               src="${item.url}"
               alt="${item.alt}"
-              class="w-full h-fit object-cover overflow-visible transition-transform duration-300 group-hover:scale-[1.03]"
+              class="w-full h-full object-contain object-center transition-transform duration-300 group-hover:scale-[1.03]"
               loading="lazy"
             />
             <div class="absolute inset-0 flex items-center justify-center bg-black/0 opacity-0 transition-all duration-300 group-hover:bg-black/35 group-hover:opacity-100">
@@ -296,7 +290,7 @@ const carouselDictionary = translations;
               </span>
             </div>
           </div>
-          <div class="border-t border-white/10 px-3 py-2 text-sm text-white/80">
+          <div class="border-t border-white/10 px-3 py-2 text-sm text-white/80 shrink-0">
             ${lang === "en" ? item.tituloEn : item.tituloEs}
           </div>
         </a>
