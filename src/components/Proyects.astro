@@ -86,7 +86,7 @@ const getSafeLinks = (links: (ProjectLink | null)[] | undefined) =>
   (links ?? []).filter((link): link is ProjectLink => Boolean(link));
 
 const proyects = await sanityClient.fetch<SanityProject[]>(`
-*[_type == "proyecto"][0..4]{
+*[_type == "proyecto" && destacado == true][0..4]{
   titulo{es,en},
   descripcioncorta{es,en},
   tags[]->{
@@ -181,7 +181,9 @@ const fallbackProjectImageAlt = pickLocalized(
       <div class="flex flex-col flex-1 gap-4">
         {
           grid1Slots.map((slot) => (
-            <div class={`${slot.baseColor} relative overflow-hidden rounded-2xl`}>
+            <div
+              class={`${slot.baseColor} relative overflow-hidden rounded-2xl`}
+            >
               {slot.image?.url && (
                 <a
                   href={getProjectHref(slot.image.slug)}
@@ -191,7 +193,9 @@ const fallbackProjectImageAlt = pickLocalized(
                     loading="lazy"
                     src={slot.image.url}
                     alt={
-                      slot.image.alt ?? slot.image.titulo ?? fallbackProjectImageAlt
+                      slot.image.alt ??
+                      slot.image.titulo ??
+                      fallbackProjectImageAlt
                     }
                     class="w-full h-auto block"
                   />
@@ -205,9 +209,7 @@ const fallbackProjectImageAlt = pickLocalized(
                       data-en={JSON.stringify(slot.image.tagsEn ?? [])}
                     >
                       {(
-                        slot.image.tags?.slice(0, 3) ?? [
-                          fallbackProjectLabel,
-                        ]
+                        slot.image.tags?.slice(0, 3) ?? [fallbackProjectLabel]
                       ).map((tag: string) => (
                         <span class="text-white/60 text-[11px] uppercase tracking-[2.5px]">
                           {tag}
@@ -243,7 +245,9 @@ const fallbackProjectImageAlt = pickLocalized(
       <div class="flex flex-col flex-1 gap-4">
         {
           grid2Slots.map((slot) => (
-            <div class={`${slot.baseColor} relative overflow-hidden rounded-2xl`}>
+            <div
+              class={`${slot.baseColor} relative overflow-hidden rounded-2xl`}
+            >
               {slot.isExplore && (
                 // <div class="h-full w-full flex flex-col items-start justify-between rounded-2xl border border-white/10 p-8">
                 //   <h3 class="text-white  text-4xl font-normal">
@@ -313,7 +317,9 @@ const fallbackProjectImageAlt = pickLocalized(
                     loading="lazy"
                     src={slot.image.url}
                     alt={
-                      slot.image.alt ?? slot.image.titulo ?? fallbackProjectImageAlt
+                      slot.image.alt ??
+                      slot.image.titulo ??
+                      fallbackProjectImageAlt
                     }
                     class="w-full h-auto block"
                   />
@@ -327,9 +333,7 @@ const fallbackProjectImageAlt = pickLocalized(
                       data-en={JSON.stringify(slot.image.tagsEn ?? [])}
                     >
                       {(
-                        slot.image.tags?.slice(0, 3) ?? [
-                          fallbackProjectLabel,
-                        ]
+                        slot.image.tags?.slice(0, 3) ?? [fallbackProjectLabel]
                       ).map((tag: string) => (
                         <span class="text-white/60 text-[11px] uppercase tracking-[2.5px]">
                           {tag}

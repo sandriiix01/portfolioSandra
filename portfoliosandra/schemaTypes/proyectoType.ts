@@ -64,6 +64,14 @@ export const proyectoType = defineType({
     localizedString('titulo', 'Título'),
 
     defineField({
+      name: 'destacado',
+      title: 'Destacado',
+      description: 'Marca este proyecto para mostrarlo en la sección de destacados del home.',
+      type: 'boolean',
+      initialValue: false,
+    }),
+
+    defineField({
       name: 'slug',
       title: 'Slug',
       type: 'slug',
