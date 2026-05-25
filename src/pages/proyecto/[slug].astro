@@ -470,12 +470,12 @@ const optionalSections: Array<{
  
         <!-- Right: cover image -->
         <div class="project-img-wrap rounded-2xl overflow-hidden bg-[#191a1a]
-                    aspect-4/3 lg:aspect-auto lg:min-h-70">
+                     ">
           {imageUrl(project.imagencover) ? (
             <img
               src={imageUrl(project.imagencover)}
               alt={defaultLang === 'en' ? `Cover image of ${project.titulo}` : `Imagen de portada de ${project.titulo}`}
-              class="w-full h-full object-cover"
+              class="w-full h-auto object-contain"
               loading="lazy"
             />
           ) : (
@@ -496,9 +496,9 @@ const optionalSections: Array<{
               {project.introduccion.imagenes.map((image, imageIdx) => (
                 <div
                   class:list={[
-                    'project-img-wrap  rounded-2xl overflow-hidden bg-[#191a1a] aspect-square sm:aspect-auto',
+                    'project-img-wrap h-fit  rounded-2xl overflow-hidden bg-[#191a1a] ',
                     imageIdx === 0 && project.introduccion?.imagenes && project.introduccion.imagenes.length > 1
-                      ? 'sm:col-span-2 aspect-video'
+                      ? 'sm:col-span-2 '
                       : ''
                   ]}
                 >
@@ -506,7 +506,7 @@ const optionalSections: Array<{
                     <img
                       src={imageUrl(image)}
                       alt={defaultLang === 'en' ? `Introduction image of ${project.titulo}` : `Imagen de introduccion de ${project.titulo}`}
-                      class="w-full h-full object-cover"
+                      class="w-full h-auto object-cover"
                       loading="lazy"
                     />
                   ) : (
@@ -595,9 +595,9 @@ const optionalSections: Array<{
               {section.data.imagenes.map((image, imageIdx) => (
                 <div
                   class:list={[
-                    'project-img-wrap max-h-[600px] rounded-2xl overflow-hidden bg-[#191a1a] aspect-square sm:aspect-auto',
-                    imageIdx === 0 && section.data?.imagenes && section.data.imagenes.length > 1
-                      ? 'sm:col-span-2 aspect-video'
+                    'project-img-wrap  h-fit  rounded-2xl overflow-hidden bg-[#191a1a] ',
+                    section.key !== 'intencion' && imageIdx === 0 && section.data?.imagenes && section.data.imagenes.length > 1
+                      ? 'sm:col-span-2 '
                       : ''
                   ]}
                 >
@@ -605,7 +605,7 @@ const optionalSections: Array<{
                     <img
                       src={imageUrl(image)}
                       alt={defaultLang === 'en' ? `Image of ${section.titleEn.toLowerCase()} from ${project.titulo}` : `Imagen de ${section.title.toLowerCase()} de ${project.titulo}`}
-                      class="w-full h-full object-cover"
+                      class="w-full h-auto object-cover"
                       loading="lazy"
                     />
                   ) : (

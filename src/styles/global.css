@@ -865,10 +865,10 @@
 /* ── Gallery row heights en desktop ── */
 @media (min-width: 640px) {
   .project-gallery .grid > div {
-    min-height: 240px;
+    /* min-height: 240px; */
   }
   .project-img-wrap.aspect-video {
-    aspect-ratio: auto;
+    /* aspect-ratio: auto; */
   }
 }
 
