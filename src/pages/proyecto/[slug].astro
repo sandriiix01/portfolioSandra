@@ -4,6 +4,7 @@ import "../../styles/global.css";
 import { sanityClient } from '../../lib/sanity'
 import YouTube from "../../components/Youtube.astro";
 import Footer from '../../components/Footer.astro';
+import GoBack from '../../components/GoBack.astro';
 import { DEFAULT_LANG, LANG_STORAGE_KEY } from '../../i18n/translations';
 import { urlFor } from "../../lib/sanityImageUrl";
 
@@ -382,9 +383,9 @@ const optionalSections: Array<{
     aria-label="Sección principal"
       id="proyectos"
         style="margin: 0 auto; width: 100%; max-width: 1800px; "
-  class="px-6 sm:px-12 lg:px-24 pb-20"
+  class="px-6 sm:px-12 lg:px-24 pb-20 relative "
   >
-
+    <GoBack/>
   {project ? (
     <article class="project-entry" aria-label={project.titulo}>
  
