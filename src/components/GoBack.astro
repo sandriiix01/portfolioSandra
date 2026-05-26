@@ -1,4 +1,44 @@
-<a href="/myproyects" class="go-back-to-projects">Volver a proyectos</a>
+---
+import { LANG_STORAGE_KEY, translations } from "../i18n/translations";
+---
+
+<a
+  href="/myproyects"
+  class="go-back-to-projects"
+  data-i18n-goback="backToProjects"
+  aria-label="Volver a proyectos">Volver a proyectos</a
+>
+
+<script>
+  const LANG_STORAGE_KEY = "site-lang";
+  const GO_BACK_I18N = {
+    es: "Volver a proyectos",
+    en: "Back to projects",
+  };
+
+  function sanitizeLang(value) {
+    return value === "en" ? "en" : "es";
+  }
+
+  function applyGoBackLanguage(lang) {
+    const node = document.querySelector("[data-i18n-goback]");
+    if (!node) return;
+    node.textContent = GO_BACK_I18N[lang];
+    node.setAttribute("aria-label", GO_BACK_I18N[lang]);
+  }
+
+  function initGoBackLanguage() {
+    const initialLang = sanitizeLang(localStorage.getItem(LANG_STORAGE_KEY));
+    applyGoBackLanguage(initialLang);
+    window.addEventListener("site-language-change", (event) => {
+      const customEvent = event;
+      applyGoBackLanguage(sanitizeLang(customEvent.detail?.lang ?? null));
+    });
+  }
+
+  document.addEventListener("astro:page-load", initGoBackLanguage);
+  initGoBackLanguage();
+</script>
 
 <style>
   .go-back-to-projects {
