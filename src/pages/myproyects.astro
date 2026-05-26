@@ -12,6 +12,17 @@ type LocalizedText = {
 }
 
 type ProjectTag = {
+  slug?: {
+    current?: string
+  }
+  label?: LocalizedText
+}
+
+type SanityTag = {
+  _id: string
+  slug?: {
+    current?: string
+  }
   label?: LocalizedText
 }
 
@@ -60,6 +71,7 @@ type ProjectCard = {
   descripcionEn: string
   imagencoverUrl?: string
   imagencoverAlt?: string
+  tagIds: string[]
   tags: string[]
   tagsEs: string[]
   tagsEn: string[]
@@ -67,6 +79,13 @@ type ProjectCard = {
   slug?: {
     current?: string
   }
+}
+
+type TagFilterOption = {
+  id: string
+  label: string
+  labelEs: string
+  labelEn: string
 }
 
 const defaultLang = DEFAULT_LANG as 'es' | 'en';
@@ -84,6 +103,11 @@ const getLocalizedTags = (tags: (ProjectTag | null)[] | undefined, lang: 'es' | 
         ? tag.label.en ?? tag.label.es ?? ''
         : tag.label.es ?? tag.label.en ?? '';
     })
+    .filter(Boolean)
+
+const getProjectTagIds = (tags: (ProjectTag | null)[] | undefined) =>
+  (tags ?? [])
+    .map((tag) => tag?.slug?.current ?? '')
     .filter(Boolean)
 
 const getLocalizedLinks = (links: (ProjectLink | null)[] | undefined) =>
@@ -112,6 +136,7 @@ const projectsRaw = await sanityClient.fetch<SanityProject[]>(`
     asset
   },
   tags[]->{
+    slug,
     label{es,en}
   },
   links[]{
@@ -121,6 +146,29 @@ const projectsRaw = await sanityClient.fetch<SanityProject[]>(`
   slug,
 }
 `);
+
+const tagsRaw = await sanityClient.fetch<SanityTag[]>(`
+*[_type == "tag"] | order(coalesce(label.es, label.en) asc) {
+  _id,
+  slug,
+  label{es,en}
+}
+`);
+
+const tagsForFilter: TagFilterOption[] = tagsRaw
+  .map((tag) => {
+    const id = tag.slug?.current ?? tag._id;
+    const labelEs = pickLocalized(tag.label, 'es') || 'Etiqueta';
+    const labelEn = pickLocalized(tag.label, 'en') || 'Tag';
+
+    return {
+      id,
+      label: pickLocalized(tag.label, defaultLang) || labelEs,
+      labelEs,
+      labelEn,
+    };
+  })
+  .filter((tag) => Boolean(tag.id));
 
 const projects: ProjectCard[] = projectsRaw.map((project) => {
   const tituloEs = pickLocalized(project.titulo, 'es');
@@ -147,6 +195,7 @@ const projects: ProjectCard[] = projectsRaw.map((project) => {
     descripcionEn,
     imagencoverUrl,
     imagencoverAlt,
+    tagIds: getProjectTagIds(project.tags),
     tags: getLocalizedTags(project.tags, defaultLang),
     tagsEs: getLocalizedTags(project.tags, 'es'),
     tagsEn: getLocalizedTags(project.tags, 'en'),
@@ -169,6 +218,41 @@ const pageDictionary = translations;
   class="px-6 sm:px-12 lg:px-24"
   >
 
+  <div class="mb-12 sm:mb-16" data-tag-filter-root>
+    <div class="flex flex-wrap gap-2">
+      {tagsForFilter.map((tag) => (
+        <button
+          type="button"
+          class="chip transition-colors duration-200 cursor-pointer hover:bg-white/50 hover:text-black"
+          data-tag-filter-button
+          data-tag-id={tag.id}
+          data-es={tag.labelEs}
+          data-en={tag.labelEn}
+          aria-pressed="false"
+        >
+          {tag.label}
+        </button>
+      ))}
+    </div>
+
+    <div class="mt-4 hidden items-center gap-2 text-sm text-neutral-300" data-tag-filter-active-wrap>
+      <span data-tag-filter-viewing-text>Viendo</span>
+      <button
+        type="button"
+        class="cursor-pointer inline-flex items-center gap-2 rounded-full border border-neutral-600 bg-neutral-900 px-3 py-1 text-white"
+        data-tag-filter-reset
+      >
+        <span data-tag-filter-active-label></span>
+        <span aria-hidden="true" class="text-white/90">x</span>
+      </button>
+    </div>
+
+    <div class="mt-4 p-2 text-xl text-neutral-300 text-center w-full bg-neutral-900 aspect-[16/9] flex items-center justify-center rounded-2xl" data-tag-empty-state>
+      Trabajando en más proyectos...proximamente
+    </div>
+   
+     </div>
+
  
   {projects.map((project, idx) => (
     <article
@@ -177,6 +261,7 @@ const pageDictionary = translations;
         idx < projects.length - 1 ? "mb-24 sm:mb-32" : ""
       ]}
       aria-label={project.titulo}
+      data-project-tag-ids={JSON.stringify(project.tagIds)}
     >
  
       <!-- ── TOP ROW: título + cover ── -->
@@ -324,7 +409,22 @@ const pageDictionary = translations;
     en: translations.en.general,
   };
 
+  const FILTER_COPY = {
+    es: {
+      viewing: 'Viendo',
+      empty: 'Trabajando en más proyectos...proximamente',
+    },
+    en: {
+      viewing: 'Viewing',
+      empty: 'Working on more projects...coming soon',
+    },
+  };
+
   function initMyProjectsLanguage() {
+    const sectionRoot = document.querySelector<HTMLElement>('[data-tag-filter-root]')?.closest('section');
+    if (!sectionRoot || sectionRoot.dataset.myprojectsInitialized === 'true') return;
+    sectionRoot.dataset.myprojectsInitialized = 'true';
+
     const i18nNodes = Array.from(
       document.querySelectorAll<HTMLElement>('[data-i18n-myprojects]'),
     );
@@ -340,6 +440,20 @@ const pageDictionary = translations;
     const projectLinkNodes = Array.from(
       document.querySelectorAll<HTMLElement>('[data-i18n-myprojects-link-label]'),
     );
+    const projectEntryNodes = Array.from(
+      document.querySelectorAll<HTMLElement>('.project-entry'),
+    );
+    const tagFilterButtons = Array.from(
+      document.querySelectorAll<HTMLButtonElement>('[data-tag-filter-button]'),
+    );
+    const activeFilterWrap = document.querySelector<HTMLElement>('[data-tag-filter-active-wrap]');
+    const activeFilterLabel = document.querySelector<HTMLElement>('[data-tag-filter-active-label]');
+    const activeFilterViewingText = document.querySelector<HTMLElement>('[data-tag-filter-viewing-text]');
+    const tagFilterResetButton = document.querySelector<HTMLButtonElement>('[data-tag-filter-reset]');
+    const emptyStateNode = document.querySelector<HTMLElement>('[data-tag-empty-state]');
+
+    let selectedTagId: string | null = null;
+    let currentLang: 'es' | 'en' = 'es';
 
     function sanitizeLang(value: string | null): 'es' | 'en' {
       return value === 'en' ? 'en' : 'es';
@@ -357,7 +471,76 @@ const pageDictionary = translations;
       }
     }
 
+    function parseTagIds(node: HTMLElement) {
+      const raw = node.dataset.projectTagIds ?? '[]';
+
+      try {
+        const parsed = JSON.parse(raw);
+        if (!Array.isArray(parsed)) return [];
+        return parsed.filter((item): item is string => typeof item === 'string');
+      } catch {
+        return [];
+      }
+    }
+
+    function getTagLabel(button: HTMLButtonElement, lang: 'es' | 'en') {
+      return (button.getAttribute(`data-${lang}`) ?? button.textContent ?? '').trim();
+    }
+
+    function updateActiveFilter(lang: 'es' | 'en') {
+      if (!activeFilterWrap || !activeFilterLabel || !activeFilterViewingText) return;
+
+      activeFilterViewingText.textContent = FILTER_COPY[lang].viewing;
+
+      if (!selectedTagId) {
+        activeFilterWrap.classList.add('hidden');
+        activeFilterWrap.classList.remove('inline-flex');
+        activeFilterLabel.textContent = '';
+        return;
+      }
+
+      const selectedButton = tagFilterButtons.find((button) => button.dataset.tagId === selectedTagId);
+      const selectedLabel = selectedButton ? getTagLabel(selectedButton, lang) : '';
+
+      activeFilterLabel.textContent = selectedLabel;
+      activeFilterWrap.classList.remove('hidden');
+      activeFilterWrap.classList.add('inline-flex');
+    }
+
+    function applyProjectFilter(lang: 'es' | 'en') {
+      let visibleCount = 0;
+
+      projectEntryNodes.forEach((node) => {
+        const projectTagIds = parseTagIds(node);
+        const matchesFilter = !selectedTagId || projectTagIds.includes(selectedTagId);
+
+        node.classList.toggle('hidden', !matchesFilter);
+        if (matchesFilter) visibleCount += 1;
+      });
+
+      tagFilterButtons.forEach((button) => {
+        const isActive = selectedTagId === (button.dataset.tagId ?? '');
+        button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+        button.classList.toggle('!bg-white', isActive);
+        button.classList.toggle('!text-black', isActive);
+      });
+
+      if (emptyStateNode) {
+        emptyStateNode.textContent = FILTER_COPY[lang].empty;
+        const shouldShowEmpty = Boolean(selectedTagId) && visibleCount === 0;
+        emptyStateNode.classList.toggle('hidden', !shouldShowEmpty);
+      }
+
+      updateActiveFilter(lang);
+    }
+
+    function setSelectedTag(tagId: string | null, lang: 'es' | 'en') {
+      selectedTagId = tagId;
+      applyProjectFilter(lang);
+    }
+
     function applyMyProjectsLanguage(lang: 'es' | 'en') {
+      currentLang = lang;
       const dictionary = MYPROJECTS_I18N[lang];
 
       i18nNodes.forEach((node) => {
@@ -392,7 +575,25 @@ const pageDictionary = translations;
         const localizedLabel = node.getAttribute(`data-${lang}`)?.trim();
         node.textContent = localizedLabel || (lang === 'en' ? 'View link' : 'Ver enlace');
       });
+
+      tagFilterButtons.forEach((button) => {
+        button.textContent = getTagLabel(button, lang);
+      });
+
+      applyProjectFilter(lang);
     }
+
+    tagFilterButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        const clickedTagId = button.dataset.tagId ?? null;
+        if (!clickedTagId) return;
+        setSelectedTag(clickedTagId, currentLang);
+      });
+    });
+
+    tagFilterResetButton?.addEventListener('click', () => {
+      setSelectedTag(null, currentLang);
+    });
 
     const initialLang = sanitizeLang(localStorage.getItem(LANG_STORAGE_KEY));
     applyMyProjectsLanguage(initialLang);

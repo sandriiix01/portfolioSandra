@@ -17,6 +17,7 @@ const isProjects =
   (normalizedPath.includes("/proyecto/") && !isIlustrations && !isPhotografies);
 
 import { DEFAULT_LANG, translations } from "../i18n/translations";
+import logo from "./../../public/images/SANDRA GUILLEN.svg";
 const navDictionary = translations;
 const defaultLang = DEFAULT_LANG;
 
@@ -44,7 +45,7 @@ const navLinks: Array<{ key: NavLinkKey; href: string; active: boolean }> = [
   >
     <!-- Logo -->
     <a href="/" class="nav-logo" aria-label="Ir al inicio">
-      S.G<span class="nav-logo-dot">.</span>
+      <img src={logo.src} alt="Sandra Guillén" class="w-16" />
     </a>
 
     <!-- Links (desktop) -->
