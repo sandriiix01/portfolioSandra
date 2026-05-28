@@ -5,7 +5,7 @@ import { ClientRouter } from "astro:transitions";
 
 const {
   title = "Sandra",
-  description = "Portafolio de Sandra, en Madrid",
+  description = "Diseñadora gráfica y audiovisual | Ilustradora",
   image = "/favicon.svg",
   imageAlt = "Logo de Sandra",
   imageWidth = 1200,
@@ -17,6 +17,13 @@ const {
 const canonicalUrl = Astro.site
   ? new URL(Astro.url.pathname, Astro.site).toString()
   : Astro.url.href;
+
+// Always use absolute URL for social images
+const absoluteImageUrl = image?.startsWith('http')
+  ? image
+  : Astro.site
+    ? new URL(image, Astro.site).toString()
+    : image;
 const defaultLang = DEFAULT_LANG;
 const backToTopLabel = translations[defaultLang].general.backToTop;
 const backToTopLabelEs = translations.es.general.backToTop;
@@ -44,7 +51,7 @@ const backToTopLabelEn = translations.en.general.backToTop;
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonicalUrl} />
-    <meta property="og:image" content={image} />
+    <meta property="og:image" content={absoluteImageUrl} />
     <meta property="og:image:alt" content={imageAlt} />
     <meta property="og:image:width" content={imageWidth} />
     <meta property="og:image:height" content={imageHeight} />
@@ -54,7 +61,7 @@ const backToTopLabelEn = translations.en.general.backToTop;
     <meta name="twitter:url" content={canonicalUrl} />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
-    <meta name="twitter:image" content={image} />
+    <meta name="twitter:image" content={absoluteImageUrl} />
     <meta name="twitter:image:alt" content={imageAlt} />
     <ClientRouter />
   </head>
