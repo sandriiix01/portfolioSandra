@@ -37,6 +37,15 @@ export const tagType = defineType({
       ],
       validation: (rule) => rule.required(),
     }),
+    defineField({
+      name: 'featured',
+      title: 'Tag destacada',
+      type: 'boolean',
+      initialValue: false,
+      options: {
+        layout: 'switch',
+      },
+    }),
   ],
   preview: {
     select: {

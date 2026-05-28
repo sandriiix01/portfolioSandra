@@ -20,6 +20,7 @@ type ProjectTag = {
 
 type SanityTag = {
   _id: string
+  featured?: boolean
   slug?: {
     current?: string
   }
@@ -148,8 +149,9 @@ const projectsRaw = await sanityClient.fetch<SanityProject[]>(`
 `);
 
 const tagsRaw = await sanityClient.fetch<SanityTag[]>(`
-*[_type == "tag"] | order(coalesce(label.es, label.en) asc) {
+*[_type == "tag" && coalesce(featured, false) == true] | order(coalesce(label.es, label.en) asc) {
   _id,
+  featured,
   slug,
   label{es,en}
 }
@@ -215,7 +217,7 @@ const pageDictionary = translations;
     aria-label="Sección principal"
       id="proyectos"
         style="margin: 0 auto; width: 100%; max-width: 1800px; "
-  class="px-6 sm:px-12 lg:px-24"
+  class="px-6 sm:px-12 lg:px-24 pb-12"
   >
 
   <div class="mb-12 sm:mb-16" data-tag-filter-root>
