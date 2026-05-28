@@ -7,6 +7,10 @@ const {
   title = "Sandra",
   description = "Portafolio de Sandra, en Madrid",
   image = "/favicon.svg",
+  imageAlt = "Logo de Sandra",
+  imageWidth = 1200,
+  imageHeight = 630,
+  imageType = "image/svg+xml",
   noindex = false,
 } = Astro.props;
 
@@ -41,13 +45,17 @@ const backToTopLabelEn = translations.en.general.backToTop;
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonicalUrl} />
     <meta property="og:image" content={image} />
-    <meta property="og:image:alt" content="Logo de Sandra" />
+    <meta property="og:image:alt" content={imageAlt} />
+    <meta property="og:image:width" content={imageWidth} />
+    <meta property="og:image:height" content={imageHeight} />
+    <meta property="og:image:type" content={imageType} />
 
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:url" content={canonicalUrl} />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={image} />
+    <meta name="twitter:image:alt" content={imageAlt} />
     <ClientRouter />
   </head>
   <body>
