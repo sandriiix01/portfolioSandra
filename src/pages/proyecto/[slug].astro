@@ -330,11 +330,13 @@ const imageSrcSet = (image?: SanityImage) => {
   return IMAGE_WIDTHS.map((width) => `${imageUrl(image, width)} ${width}w`).join(', ')
 }
 
+// En móvil nunca más de 800px, en desktop igual que antes
 const imageSizes = (variant: 'cover' | 'featured' | 'regular' | 'single') => {
-  if (variant === 'cover') return '(min-width: 1024px) 42vw, 100vw'
-  if (variant === 'single') return '(min-width: 1024px) 1600px, 100vw'
-  if (variant === 'featured') return '(min-width: 1024px) 66vw, 100vw'
-  return '(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw'
+  if (variant === 'cover') return '(max-width: 639px) 100vw, (max-width: 1023px) 100vw, (min-width: 1024px) 42vw, 800px'
+  if (variant === 'single') return '(max-width: 639px) 100vw, (max-width: 1023px) 100vw, (min-width: 1024px) 1600px, 800px'
+  if (variant === 'featured') return '(max-width: 639px) 100vw, (max-width: 1023px) 100vw, (min-width: 1024px) 66vw, 800px'
+  // regular
+  return '(max-width: 639px) 100vw, (max-width: 1023px) 100vw, (min-width: 1024px) 33vw, (min-width: 640px) 50vw, 800px'
 }
 
 const sectionTitles = {
