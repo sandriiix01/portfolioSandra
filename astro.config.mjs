@@ -4,6 +4,7 @@ import { defineConfig } from "astro/config";
 import tailwindcss from "@tailwindcss/vite";
 
 import sanity from "@sanity/astro";
+import sitemap from "@astrojs/sitemap";
 
 // https://astro.build/config
 export default defineConfig({
@@ -13,6 +14,7 @@ export default defineConfig({
   },
 
   integrations: [
+    sitemap(),
     sanity({
       projectId: "csd7x6wg",
       dataset: "production",

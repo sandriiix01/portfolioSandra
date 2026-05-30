@@ -4,8 +4,8 @@ import { DEFAULT_LANG, translations } from "../i18n/translations";
 import { ClientRouter } from "astro:transitions";
 
 const {
-  title = "Sandra",
-  description = "Diseñadora gráfica y audiovisual | Ilustradora",
+  title = "Sandra Guillen | Portfolio de Diseno Visual",
+  description = "Portfolio de Sandra Guillen, disenadora grafica y audiovisual. Explora proyectos de branding, ilustracion, fotografia y direccion de arte.",
   image = "/social-share.png",
   imageAlt = "Diseño de portada de Sandra Guillen, fondo negro con estrellas y texto 'Diseñar con un propósito'",
   imageWidth = 1200,
@@ -18,8 +18,43 @@ const canonicalUrl = Astro.site
   ? new URL(Astro.url.pathname, Astro.site).toString()
   : Astro.url.href;
 
+const socialBrandTitle = "Sandra Guillen | Portfolio de Diseno Visual";
+const socialBrandDescription =
+  "Portfolio de Sandra Guillen, disenadora grafica y audiovisual. Explora proyectos de branding, ilustracion, fotografia y direccion de arte.";
+
+const ensureSocialTitle = (value: string) => {
+  const base = value.trim() || socialBrandTitle;
+
+  if (base.length < 10) {
+    return `${base} | Sandra Guillen`;
+  }
+
+  if (base.length > 70) {
+    return `${base.slice(0, 67).trim()}...`;
+  }
+
+  return base;
+};
+
+const ensureSocialDescription = (value: string) => {
+  const base = value.trim() || socialBrandDescription;
+
+  if (base.length < 50) {
+    return `${base} ${socialBrandDescription}`.slice(0, 200).trim();
+  }
+
+  if (base.length > 200) {
+    return `${base.slice(0, 197).trim()}...`;
+  }
+
+  return base;
+};
+
+const socialTitle = ensureSocialTitle(title);
+const socialDescription = ensureSocialDescription(description);
+
 // Always use absolute URL for social images
-const absoluteImageUrl = image?.startsWith('http')
+const absoluteImageUrl = image?.startsWith("http")
   ? image
   : Astro.site
     ? new URL(image, Astro.site).toString()
@@ -48,8 +83,8 @@ const backToTopLabelEn = translations.en.general.backToTop;
 
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="es_ES" />
-    <meta property="og:title" content={title} />
-    <meta property="og:description" content={description} />
+    <meta property="og:title" content={socialTitle} />
+    <meta property="og:description" content={socialDescription} />
     <meta property="og:url" content={canonicalUrl} />
     <meta property="og:image" content={absoluteImageUrl} />
     <meta property="og:image:alt" content={imageAlt} />
@@ -59,8 +94,8 @@ const backToTopLabelEn = translations.en.general.backToTop;
 
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:url" content={canonicalUrl} />
-    <meta name="twitter:title" content={title} />
-    <meta name="twitter:description" content={description} />
+    <meta name="twitter:title" content={socialTitle} />
+    <meta name="twitter:description" content={socialDescription} />
     <meta name="twitter:image" content={absoluteImageUrl} />
     <meta name="twitter:image:alt" content={imageAlt} />
     <ClientRouter />
