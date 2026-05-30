@@ -230,10 +230,10 @@ const MAX_STARS = 5;
               programs.map((prog) => (
                 <li class="skills-row">
                   <span class="skills-row__name">{prog.name}</span>
-                  <span
-                    class="skills-row__stars"
-                    aria-label={`Nivel ${prog.level} de ${MAX_STARS}`}
-                  >
+                  <span class="sr-only">
+                    {`Nivel ${prog.level} de ${MAX_STARS}`}
+                  </span>
+                  <span class="skills-row__stars" aria-hidden="true">
                     {Array.from({ length: MAX_STARS }).map((_, i) => (
                       <svg
                         class:list={[
