@@ -127,7 +127,7 @@ const getLocalizedLinks = (links: (ProjectLink | null)[] | undefined) =>
     })
 
 const projectsRaw = await sanityClient.fetch<SanityProject[]>(`
-*[_type == "proyecto"][]{
+*[_type == "proyecto"] | order(orderRank asc){
   titulo{es,en},
   descripcioncorta{es,en},
   imagencover{

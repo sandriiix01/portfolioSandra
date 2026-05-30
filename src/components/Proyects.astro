@@ -86,7 +86,7 @@ const getSafeLinks = (links: (ProjectLink | null)[] | undefined) =>
   (links ?? []).filter((link): link is ProjectLink => Boolean(link));
 
 const proyects = await sanityClient.fetch<SanityProject[]>(`
-*[_type == "proyecto" && destacado == true][0..4]{
+*[_type == "proyecto" && destacado == true] | order(orderRank asc)[0..4]{
   titulo{es,en},
   descripcioncorta{es,en},
   tags[]->{

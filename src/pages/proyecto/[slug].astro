@@ -106,7 +106,7 @@ type ProjectMapped = {
 
 export async function getStaticPaths() {
   const projects = await sanityClient.fetch<Array<{ slug?: { current?: string } }>>(`
-    *[_type == "proyecto"][]{
+    *[_type == "proyecto"] | order(orderRank asc){
       slug
     }
   `)

@@ -1,17 +1,17 @@
 ---
-import { sanityClient } from '../lib/sanity'
+import { sanityClient } from "../lib/sanity";
 
 type ProjectImage = {
-  url?: string
-  alt?: string
-  titulo?: string
-  descripcion?: string
-  tags?: string[]
-  links?: { label?: string; url?: string }[]
-}
+  url?: string;
+  alt?: string;
+  titulo?: string;
+  descripcion?: string;
+  tags?: string[];
+  links?: { label?: string; url?: string }[];
+};
 
 const proyects = await sanityClient.fetch(`
-  *[_type == "proyecto"][]{
+  *[_type == "proyecto"] | order(orderRank asc){
     titulo,
     descripcion,
     tags,
@@ -21,110 +21,152 @@ const proyects = await sanityClient.fetch(`
       "url": asset->url
     }
   }
-`)
+`);
 
 const projectImages: ProjectImage[] = proyects
   .flatMap(
     (project: {
-      titulo?: string
-      descripcion?: string
-      tags?: string[]
-      links?: { label?: string; url?: string }[]
-      imagenes?: { url?: string; alt?: string }[]
+      titulo?: string;
+      descripcion?: string;
+      tags?: string[];
+      links?: { label?: string; url?: string }[];
+      imagenes?: { url?: string; alt?: string }[];
     }) =>
-    (project.imagenes ?? []).map((image) => ({
-      url: image?.url,
-      alt: image?.alt,
-      titulo: project.titulo,
-      descripcion: project.descripcion,
-      tags: project.tags,
-      links: project.links,
-    }))
+      (project.imagenes ?? []).map((image) => ({
+        url: image?.url,
+        alt: image?.alt,
+        titulo: project.titulo,
+        descripcion: project.descripcion,
+        tags: project.tags,
+        links: project.links,
+      })),
   )
-  .filter((image: ProjectImage) => Boolean(image.url))
+  .filter((image: ProjectImage) => Boolean(image.url));
 
-const gridImages = Array.from({ length: 6 }, (_, index) => projectImages[index] ?? null)
+const gridImages = Array.from(
+  { length: 6 },
+  (_, index) => projectImages[index] ?? null,
+);
 
 const grid1Slots = [
-  { rowSpan: 'row-span-7', baseColor: 'bg-gray-300', image: gridImages[0] },
-  { rowSpan: 'row-span-4', baseColor: 'bg-gray-400', image: gridImages[1] },
-  { rowSpan: 'row-span-5', baseColor: 'bg-gray-500', image: gridImages[2] },
-]
+  { rowSpan: "row-span-7", baseColor: "bg-gray-300", image: gridImages[0] },
+  { rowSpan: "row-span-4", baseColor: "bg-gray-400", image: gridImages[1] },
+  { rowSpan: "row-span-5", baseColor: "bg-gray-500", image: gridImages[2] },
+];
 
 const grid2Slots = [
-  { rowSpan: 'row-span-5', baseColor: 'bg-gray-300', image: gridImages[3] },
-  { rowSpan: 'row-span-6', baseColor: 'bg-gray-400', image: gridImages[4] },
-  { rowSpan: 'row-span-5', baseColor: 'bg-gray-500', image: gridImages[5] },
-]
+  { rowSpan: "row-span-5", baseColor: "bg-gray-300", image: gridImages[3] },
+  { rowSpan: "row-span-6", baseColor: "bg-gray-400", image: gridImages[4] },
+  { rowSpan: "row-span-5", baseColor: "bg-gray-500", image: gridImages[5] },
+];
 ---
 
-
-
-			<div style="margin: 0 auto; width: 100%; max-width: 1800px; " class="px-6 sm:px-12 lg:px-24">
-  <section class=" w-full py-20 flex flex-col gap-16 ">
-
+<div
+  style="margin: 0 auto; width: 100%; max-width: 1800px; "
+  class="px-6 sm:px-12 lg:px-24"
+>
+  <section class="w-full py-20 flex flex-col gap-16">
     <!-- Header -->
     <div class="flex flex-col gap-4">
-      <span class="w-fit bg-white/5 border border-white/10 rounded-full px-4 py-1 text-white/60 text-xs uppercase tracking-[3.6px]">
+      <span
+        class="w-fit bg-white/5 border border-white/10 rounded-full px-4 py-1 text-white/60 text-xs uppercase tracking-[3.6px]"
+      >
         Selected Works
       </span>
-      <h2 class="text-white font-['Instrument_Serif'] text-6xl md:text-8xl leading-tight">
+      <h2
+        class="text-white font-['Instrument_Serif'] text-6xl md:text-8xl leading-tight"
+      >
         Featured <span class="text-transparent">Projects</span>
       </h2>
     </div>
 
     <!-- Grid -->
     <div class="flex gap-4 h-auto md:flex-row flex-col">
-  <!-- GRID 1 -->
-  <div class="grid grid-rows-[repeat(16,minmax(0,1fr))] flex-1 gap-4">
-    {grid1Slots.map((slot) => (
-      <div class={`${slot.baseColor} ${slot.rowSpan} relative overflow-hidden rounded-2xl`}>
-        {slot.image?.url && (
-          
-          <div class="h-full rounded-2xl overflow-hidden relative group duration-300 ease-in-out">
-        <img loading="lazy" src={slot.image.url} alt={slot.image.alt ?? slot.image.titulo ?? 'Imagen de proyecto'} class="w-full h-full object-cover min-h-64" />
-      
-  <div class="absolute inset-0 bg-gradient-to-r from-black/92 via-black/60 to-black/20 opacity-30 transition-opacity duration-500 group-hover:opacity-100"></div>
-   <div class="absolute top-6 left-6 flex flex-col gap-1 opacity-0 translate-y-2.5 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-400">
-          <div class="flex flex-wrap gap-2">
-            {(slot.image.tags?.slice(0, 3) ?? ['Project']).map((tag: string) => (
-              <span class="text-white/60 text-[11px] uppercase tracking-[2.5px]">{tag}</span>
-            ))}
-          </div>
-          <span class="text-white text-sm">2026</span>
-        </div>
-        <h3 class="absolute bottom-6 left-6 text-white font-['Instrument_Serif'] text-4xl font-normal">{slot.image.titulo ?? 'Proyecto'}</h3>
-      </div>
-        )}
-      </div>
-    ))}
-  </div>
+      <!-- GRID 1 -->
+      <div class="grid grid-rows-[repeat(16,minmax(0,1fr))] flex-1 gap-4">
+        {
+          grid1Slots.map((slot) => (
+            <div
+              class={`${slot.baseColor} ${slot.rowSpan} relative overflow-hidden rounded-2xl`}
+            >
+              {slot.image?.url && (
+                <div class="h-full rounded-2xl overflow-hidden relative group duration-300 ease-in-out">
+                  <img
+                    loading="lazy"
+                    src={slot.image.url}
+                    alt={
+                      slot.image.alt ??
+                      slot.image.titulo ??
+                      "Imagen de proyecto"
+                    }
+                    class="w-full h-full object-cover min-h-64"
+                  />
 
-  <!-- GRID 2 (cortes diferentes) -->
-  <div class="grid grid-rows-[repeat(16,minmax(0,1fr))] flex-1 gap-4">
-    {grid2Slots.map((slot) => (
-      <div class={`${slot.baseColor} ${slot.rowSpan} relative overflow-hidden rounded-2xl`}>
-        {slot.image?.url && (
-          <div class="h-full rounded-2xl overflow-hidden relative group duration-300 ease-in-out">
-        <img loading="lazy" src={slot.image.url} alt={slot.image.alt ?? slot.image.titulo ?? 'Imagen de proyecto'} class="w-full h-full object-cover min-h-64" />
-      
-  <div class="absolute inset-0 bg-gradient-to-r from-black/92 via-black/60 to-black/20 opacity-30 transition-opacity duration-500 group-hover:opacity-100"></div>
-   <div class="absolute top-6 left-6 flex flex-col gap-1 opacity-0 translate-y-2.5 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-400">
-          <div class="flex flex-wrap gap-2">
-            {(slot.image.tags?.slice(0, 3) ?? ['Project']).map((tag: string) => (
-              <span class="text-white/60 text-[11px] uppercase tracking-[2.5px]">{tag}</span>
-            ))}
-          </div>
-          <span class="text-white text-sm">2026</span>
-        </div>
-        <h3 class="absolute bottom-6 left-6 text-white font-['Instrument_Serif'] text-4xl font-normal">{slot.image.titulo ?? 'Proyecto'}</h3>
+                  <div class="absolute inset-0 bg-gradient-to-r from-black/92 via-black/60 to-black/20 opacity-30 transition-opacity duration-500 group-hover:opacity-100" />
+                  <div class="absolute top-6 left-6 flex flex-col gap-1 opacity-0 translate-y-2.5 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-400">
+                    <div class="flex flex-wrap gap-2">
+                      {(slot.image.tags?.slice(0, 3) ?? ["Project"]).map(
+                        (tag: string) => (
+                          <span class="text-white/60 text-[11px] uppercase tracking-[2.5px]">
+                            {tag}
+                          </span>
+                        ),
+                      )}
+                    </div>
+                    <span class="text-white text-sm">2026</span>
+                  </div>
+                  <h3 class="absolute bottom-6 left-6 text-white font-['Instrument_Serif'] text-4xl font-normal">
+                    {slot.image.titulo ?? "Proyecto"}
+                  </h3>
+                </div>
+              )}
+            </div>
+          ))
+        }
       </div>
-        )}
+
+      <!-- GRID 2 (cortes diferentes) -->
+      <div class="grid grid-rows-[repeat(16,minmax(0,1fr))] flex-1 gap-4">
+        {
+          grid2Slots.map((slot) => (
+            <div
+              class={`${slot.baseColor} ${slot.rowSpan} relative overflow-hidden rounded-2xl`}
+            >
+              {slot.image?.url && (
+                <div class="h-full rounded-2xl overflow-hidden relative group duration-300 ease-in-out">
+                  <img
+                    loading="lazy"
+                    src={slot.image.url}
+                    alt={
+                      slot.image.alt ??
+                      slot.image.titulo ??
+                      "Imagen de proyecto"
+                    }
+                    class="w-full h-full object-cover min-h-64"
+                  />
+
+                  <div class="absolute inset-0 bg-gradient-to-r from-black/92 via-black/60 to-black/20 opacity-30 transition-opacity duration-500 group-hover:opacity-100" />
+                  <div class="absolute top-6 left-6 flex flex-col gap-1 opacity-0 translate-y-2.5 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-400">
+                    <div class="flex flex-wrap gap-2">
+                      {(slot.image.tags?.slice(0, 3) ?? ["Project"]).map(
+                        (tag: string) => (
+                          <span class="text-white/60 text-[11px] uppercase tracking-[2.5px]">
+                            {tag}
+                          </span>
+                        ),
+                      )}
+                    </div>
+                    <span class="text-white text-sm">2026</span>
+                  </div>
+                  <h3 class="absolute bottom-6 left-6 text-white font-['Instrument_Serif'] text-4xl font-normal">
+                    {slot.image.titulo ?? "Proyecto"}
+                  </h3>
+                </div>
+              )}
+            </div>
+          ))
+        }
       </div>
-    ))}
-  </div>
-</div>
+    </div>
   </section>
 </div>
-
-		

@@ -1,4 +1,5 @@
 import {defineField, defineType} from 'sanity'
+import {orderRankField, orderRankOrdering} from '@sanity/orderable-document-list'
 
 // Helper para campos traducibles
 const localizedString = (name: string, title: string) =>
@@ -47,6 +48,7 @@ export const proyectoType = defineType({
   name: 'proyecto',
   title: 'Proyecto',
   type: 'document',
+  orderings: [orderRankOrdering],
   preview: {
     select: {
       title: 'titulo.es', // Mostrar el título en español
@@ -60,6 +62,8 @@ export const proyectoType = defineType({
     },
   },
   fields: [
+    orderRankField({type: 'proyecto'}),
+
     // Título traducible
     localizedString('titulo', 'Título'),
 
