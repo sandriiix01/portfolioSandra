@@ -106,7 +106,7 @@ type ProjectMapped = {
 
 export async function getStaticPaths() {
   const projects = await sanityClient.fetch<Array<{ slug?: { current?: string } }>>(`
-    *[_type == "proyecto"] | order(orderRank asc){
+    *[_type == "proyecto"][]{
       slug
     }
   `)
@@ -317,10 +317,25 @@ const project: ProjectMapped | null = projectRaw
     }
   : null;
 
-const imageUrl = (image?: SanityImage) =>
+const IMAGE_WIDTHS = [800, 1100, 1600] as const
+
+const imageUrl = (image?: SanityImage, width: (typeof IMAGE_WIDTHS)[number] = 1100) =>
   image?.asset?._ref
-    ? urlFor(image).width(1100).format("webp").quality(80).url()
-    : undefined;
+    ? urlFor(image).width(width).format("webp").quality(80).url()
+    : undefined
+
+const imageSrcSet = (image?: SanityImage) => {
+  if (!image?.asset?._ref) return undefined
+
+  return IMAGE_WIDTHS.map((width) => `${imageUrl(image, width)} ${width}w`).join(', ')
+}
+
+const imageSizes = (variant: 'cover' | 'featured' | 'regular' | 'single') => {
+  if (variant === 'cover') return '(min-width: 1024px) 42vw, 100vw'
+  if (variant === 'single') return '(min-width: 1024px) 1600px, 100vw'
+  if (variant === 'featured') return '(min-width: 1024px) 66vw, 100vw'
+  return '(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw'
+}
 
 const sectionTitles = {
   tecnicas: { es: 'Tecnicas', en: 'Techniques' },
@@ -474,7 +489,9 @@ const optionalSections: Array<{
                      ">
           {imageUrl(project.imagencover) ? (
             <img
-              src={imageUrl(project.imagencover)}
+              src={imageUrl(project.imagencover, 1100)}
+              srcset={imageSrcSet(project.imagencover)}
+              sizes={imageSizes('cover')}
               alt={defaultLang === 'en' ? `Cover image of ${project.titulo}` : `Imagen de portada de ${project.titulo}`}
               class="w-full h-auto rounded-xl object-contain"
               loading="lazy"
@@ -518,7 +535,18 @@ const optionalSections: Array<{
                 >
                   {imageUrl(image) ? (
                     <img
-                      src={imageUrl(image)}
+                      src={imageUrl(image, 1100)}
+                      srcset={imageSrcSet(image)}
+                      sizes={
+                        project.introduccion?.imagenes && project.introduccion.imagenes.length === 1
+                          ? imageSizes('single')
+                          : imageIdx === 0 &&
+                            project.introduccion?.imagenes &&
+                            project.introduccion.imagenes.length > 1 &&
+                            project.introduccion.imagenes.length < 7
+                            ? imageSizes('featured')
+                            : imageSizes('regular')
+                      }
                       alt={defaultLang === 'en' ? `Introduction image of ${project.titulo}` : `Imagen de introduccion de ${project.titulo}`}
                       class="w-full h-full rounded-xl object-contain object-center"
                       loading="lazy"
@@ -631,7 +659,19 @@ const optionalSections: Array<{
                 >
                   {imageUrl(image) ? (
                     <img
-                      src={imageUrl(image)}
+                      src={imageUrl(image, 1100)}
+                      srcset={imageSrcSet(image)}
+                      sizes={
+                        section.data?.imagenes && section.data.imagenes.length === 1
+                          ? imageSizes('single')
+                          : section.key !== 'intencion' &&
+                            imageIdx === 0 &&
+                            section.data?.imagenes &&
+                            section.data.imagenes.length > 1 &&
+                            section.data.imagenes.length < 7
+                            ? imageSizes('featured')
+                            : imageSizes('regular')
+                      }
                       alt={defaultLang === 'en' ? `Image of ${section.titleEn.toLowerCase()} from ${project.titulo}` : `Imagen de ${section.title.toLowerCase()} de ${project.titulo}`}
                       class="w-full h-full rounded-xl object-contain object-center"
                       loading="lazy"
