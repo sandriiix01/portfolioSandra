@@ -458,19 +458,15 @@ const optionalSections: Array<{
               </span>
             </p>
           </div>
- 
-          <div class="mt-2 flex flex-wrap gap-2">
-            <span>{project.anio}</span>
-          </div>
 
           {project.links && project.links.length > 0 && (
-            <div class="mt-2 flex flex-wrap gap-2">
+            <div class="mt-4 flex flex-wrap gap-3">
               {project.links.map((link) => (
                 <a
                   href={link.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  class="chip"
+                  class="project-link"
                 >
                   <span
                     data-i18n-project-text
@@ -479,11 +475,26 @@ const optionalSections: Array<{
                   >
                     {link.label ?? 'Ver enlace'}
                   </span>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M7 17L17 7" />
+                    <path d="M7 7h10v10" />
+                  </svg>
                 </a>
               ))}
             </div>
           )}
- 
+           <div class="mt-2 flex flex-wrap gap-2">
+            <span>{project.anio}</span>
+          </div>
         </div>
  
         <!-- Right: cover image -->
